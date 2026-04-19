@@ -1,14 +1,17 @@
 "use client";
 
 import {
+  Bug,
   Check,
   ClipboardText,
   ChartLineUp,
   CopySimple,
+  DownloadSimple,
   HardDrives,
   Globe,
   Kanban,
   Moon,
+  RocketLaunch,
   Sun,
   Timer,
   Sparkle,
@@ -32,7 +35,7 @@ const localeMenuOffset = 4;
 
 const copy = {
   en: {
-    nav: { start: "Quick Start", capabilities: "Capabilities", footer: "Contact" },
+    nav: { start: "Quick Start", features: "Product Features", capabilities: "Capabilities", footer: "Contact" },
     headerBadge: "Built for local deployment, agent workspaces, and operator teams",
     heroTitle: "One place for agents.",
     heroBody: "An advanced multi-agent platform for building high-performing agent teams fast.",
@@ -61,7 +64,7 @@ const copy = {
           kicker: "Fastest path",
           title: "Install and launch in one line.",
           body: "Best when you just want the site running locally without thinking about the install flow.",
-          commands: ["curl -fsSL https://moticlaw/install.sh | bash"],
+          commands: ["curl -fsSL https://moticlaw.com/install.sh | bash"],
         },
         {
           key: "npm",
@@ -69,7 +72,7 @@ const copy = {
           kicker: "Standard path",
           title: "Use npm if that's your default.",
           body: "Keeps the flow familiar for anyone used to the npm toolchain.",
-          commands: ["npm install", "npm run dev"],
+          commands: ["npm install -g moticlaw", "moticlaw status"],
         },
       ],
     },
@@ -100,13 +103,36 @@ const copy = {
         },
       ],
     },
+    contact: {
+      eyebrow: "Contact",
+      links: [
+        {
+          title: "GitHub",
+          body: "View the source",
+          href: "https://github.com/mileson/moticlaw",
+          kind: "github",
+        },
+        {
+          title: "Issues",
+          body: "Report feedback",
+          href: "https://github.com/mileson/moticlaw/issues",
+          kind: "issues",
+        },
+        {
+          title: "Releases",
+          body: "Track updates",
+          href: "https://github.com/mileson/moticlaw/releases",
+          kind: "releases",
+        },
+      ],
+    },
     footer: "Designed for MotiClaw local ops, onboarding flows, and public-facing clarity.",
     footerNote: "One scroll. One story. One control plane.",
     controls: { language: "Language", theme: "Theme", light: "Light", dark: "Dark", switchTo: "Switch to" },
     copied: "Copied",
   },
   zh: {
-    nav: { start: "快速开始", capabilities: "能力", footer: "联系" },
+    nav: { start: "快速开始", features: "产品特色", capabilities: "能力", footer: "联系" },
     headerBadge: "面向本地部署、Agent 工区和运营团队",
     heroTitle: "Agent 管理，\n一个平台就够。",
     heroBody: "先进的多 Agent 管理平台，让你即刻拥有高效 Agent 团队。",
@@ -135,7 +161,7 @@ const copy = {
           kicker: "最快路径",
           title: "一键安装即可安装并启动。",
           body: "适合想最快把站点跑起来的时候，不需要额外思考安装顺序。",
-          commands: ["curl -fsSL https://moticlaw/install.sh | bash"],
+          commands: ["curl -fsSL https://moticlaw.com/install.sh | bash"],
         },
         {
           key: "npm",
@@ -143,7 +169,7 @@ const copy = {
           kicker: "标准路径",
           title: "如果你习惯 npm，就用 npm。",
           body: "让本地启动流程保持熟悉，适合日常开发和切换环境。",
-          commands: ["npm install", "npm run dev"],
+          commands: ["npm install -g moticlaw", "moticlaw status"],
         },
       ],
     },
@@ -171,6 +197,29 @@ const copy = {
           title: "进度排行",
           body: "用排行榜跟踪贡献、产出和信心。",
           icon: ChartLineUp,
+        },
+      ],
+    },
+    contact: {
+      eyebrow: "联系",
+      links: [
+        {
+          title: "GitHub",
+          body: "查看源码",
+          href: "https://github.com/mileson/moticlaw",
+          kind: "github",
+        },
+        {
+          title: "问题反馈",
+          body: "提交 issue",
+          href: "https://github.com/mileson/moticlaw/issues",
+          kind: "issues",
+        },
+        {
+          title: "版本发布",
+          body: "查看更新",
+          href: "https://github.com/mileson/moticlaw/releases",
+          kind: "releases",
         },
       ],
     },
@@ -231,15 +280,21 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
   const [localeMenuOpen, setLocaleMenuOpen] = useState(false);
   const [localeMenuRect, setLocaleMenuRect] = useState<{ top: number; right: number } | null>(null);
   const [backdropTop, setBackdropTop] = useState(88);
+  const [headerPinned, setHeaderPinned] = useState(false);
 
   const content = copy[locale];
   const activeQuickStartTab = content.quickStart.tabs.find((tab) => tab.key === quickStartTab) ?? content.quickStart.tabs[0];
   const quickStartCommands =
     quickStartTab === "one-liner"
-      ? ["curl -fsSL https://moticlaw/install.sh | bash"]
+      ? quickStartPlatform === "windows"
+        ? [
+            "Invoke-WebRequest https://moticlaw.com/install.ps1 -OutFile $env:TEMP\\moticlaw-install.ps1",
+            "powershell -ExecutionPolicy Bypass -File $env:TEMP\\moticlaw-install.ps1",
+          ]
+        : ["curl -fsSL https://moticlaw.com/install.sh | bash"]
       : quickStartManager === "npm"
-        ? ["npm install", "npm run dev"]
-        : ["pnpm install", "pnpm dev"];
+        ? ["npm install -g moticlaw", "moticlaw status"]
+        : ["pnpm add -g moticlaw", "moticlaw status"];
   const quickStartNote = quickStartTab === "one-liner" ? (quickStartPlatform === "macos" ? "macOS & Linux" : "Windows") : quickStartManager;
   const resolvedTheme = isMounted ? getResolvedTheme(theme) : "light";
   const themeLabel = useMemo(() => {
@@ -388,6 +443,13 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
     };
   }, [localeMenuOpen]);
 
+  useEffect(() => {
+    const onScroll = () => setHeaderPinned(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   const handleQuickStartTabChange = (tab: QuickStartTabKey) => {
     setQuickStartTab(tab);
     if (tab === "npm") {
@@ -395,23 +457,51 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
     }
   };
 
+  const renderContactIcon = (kind: "github" | "issues" | "releases") => {
+    if (kind === "github") {
+      return (
+        <img
+          src={resolvedTheme === "dark" ? "/brand/github-invertocat-white.svg" : "/brand/github-invertocat-black.svg"}
+          alt=""
+          aria-hidden="true"
+          className="h-full w-full object-contain"
+        />
+      );
+    }
+
+    if (kind === "issues") {
+      return <Bug size={28} weight="regular" aria-hidden="true" />;
+    }
+
+    return <DownloadSimple size={28} weight="regular" aria-hidden="true" />;
+  };
+
   return (
-    <main className="site-shell relative overflow-hidden">
-      <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-5 py-5 sm:px-8 lg:px-10">
+    <main className="site-shell relative overflow-x-hidden">
+      <div
+        className={`fixed inset-x-0 top-0 z-40 transition-[background-color,box-shadow,backdrop-filter,border-color] duration-300 ${
+          headerPinned
+            ? "border-b border-[var(--line)] bg-[var(--surface-strong)]/70 shadow-[0_6px_18px_rgba(0,0,0,0.04)] backdrop-blur-xl"
+            : "border-b border-transparent bg-transparent shadow-none backdrop-blur-0"
+        }`}
+      >
         <header
           ref={headerRef}
-          className="fade-up sticky top-4 z-20 flex items-center justify-between gap-4 rounded-full border border-transparent bg-transparent px-2 py-2 shadow-none backdrop-blur-0"
+          className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-5 py-2 sm:px-8 lg:px-10"
         >
           <a href="#top" className="flex items-center gap-3">
             <BrandIcon />
             <div className="leading-tight">
-              <p className="display text-[1.3rem] font-semibold tracking-[0.2em] text-[var(--accent-strong)]">MotiClaw</p>
+              <p className="display text-[1.04rem] font-semibold tracking-[0.2em] text-[var(--accent-strong)]">MotiClaw</p>
             </div>
           </a>
 
           <nav className="hidden items-center gap-10 text-sm text-[var(--muted)] md:flex lg:gap-12">
             <a className="nav-link text-[var(--muted)]" href="#quick-start">
               {content.nav.start}
+            </a>
+            <a className="nav-link text-[var(--muted)]" href="#product-features">
+              {content.nav.features}
             </a>
             <a className="nav-link text-[var(--muted)]" href="#capabilities">
               {content.nav.capabilities}
@@ -421,7 +511,16 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
             </a>
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="btn-base btn-secondary btn-icon header-icon-btn"
+              title={`${content.controls.theme}: ${themeLabel}`}
+            >
+              <ThemeIcon theme={resolvedTheme} />
+            </button>
+
             <button
               type="button"
               ref={localeButtonRef}
@@ -440,24 +539,18 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
               <Translate size={22} weight="regular" aria-hidden="true" />
             </button>
 
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className="btn-base btn-secondary btn-icon header-icon-btn"
-              title={`${content.controls.theme}: ${themeLabel}`}
-            >
-              <ThemeIcon theme={resolvedTheme} />
-            </button>
-
             <a
               href="#quick-start"
-              className="btn-base btn-primary hidden sm:inline-flex min-w-[11.375rem] justify-center"
+              className="btn-base btn-primary ml-2 hidden sm:inline-flex min-w-[11.375rem] justify-center"
             >
+              <RocketLaunch size={16} weight="regular" aria-hidden="true" />
               {content.primaryCta}
             </a>
           </div>
         </header>
+      </div>
 
+      <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-5 pt-16 pb-5 sm:px-8 lg:px-10">
         {localeMenuOpen && localeMenuRect && typeof document !== "undefined"
           ? createPortal(
               <>
@@ -520,7 +613,7 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
             )
           : null}
 
-        <section id="top" className="grid flex-1 gap-12 pb-16 pt-14 lg:grid-cols-[1.08fr_0.92fr] lg:items-center lg:pb-24 lg:pt-20">
+        <section id="top" className="grid flex-1 gap-12 pb-16 pt-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-center lg:pb-24 lg:pt-16">
           <div className="fade-up space-y-7 lg:pl-8 xl:pl-12" style={{ animationDelay: "60ms" }}>
             <div className="space-y-5">
               <h1 className="display max-w-4xl whitespace-pre-line text-5xl leading-[1.08] font-semibold text-[var(--foreground)] sm:leading-[1.04] sm:text-6xl lg:text-7xl">
@@ -555,6 +648,7 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
                   href="#quick-start"
                   className="btn-base btn-primary shrink-0 min-w-[11.375rem] justify-center px-7 py-4"
                 >
+                  <RocketLaunch size={16} weight="regular" aria-hidden="true" />
                   {content.primaryCta}
                 </a>
               </div>
@@ -583,8 +677,8 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
         </section>
 
         <div className="content-stream">
-          <section id="quick-start" className="fade-up pb-14" style={{ animationDelay: "220ms" }}>
-          <p className="quickstart-section-eyebrow">{content.quickStart.eyebrow}</p>
+          <section id="quick-start" className="fade-up scroll-mt-24 pb-14" style={{ animationDelay: "220ms" }}>
+          <p className="quickstart-section-eyebrow mb-7 text-center">{content.quickStart.eyebrow}</p>
           <div className="quickstart-shell">
             <article className="quickstart-window">
               <div className="quickstart-window-bar">
@@ -689,7 +783,7 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
                         >
                           <CopySimple size={16} weight="regular" aria-hidden="true" />
                         </button>
-                        {copyHintVisible ? <span className="quickstart-copy-hint">{content.copied}</span> : null}
+                        {copyHintVisible ? <span className="quickstart-copy-hint text-white">{content.copied}</span> : null}
                       </div>
                     </div>
                   </div>
@@ -699,9 +793,9 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
           </div>
         </section>
 
-        <section className="fade-up pb-14" style={{ animationDelay: "260ms" }}>
-          <p className="section-eyebrow-lg">{content.statsSectionTitle}</p>
-          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+        <section id="product-features" className="fade-up scroll-mt-24 pb-14" style={{ animationDelay: "260ms" }}>
+          <p className="section-eyebrow-lg mb-7 text-center">{content.statsSectionTitle}</p>
+          <div className="grid gap-3 sm:grid-cols-3">
             {content.stats.map((item) => (
               <div key={item.title} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 text-center">
                 <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl text-[var(--accent-strong)] leading-none">
@@ -714,7 +808,7 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
           </div>
         </section>
 
-          <section id="capabilities" className="fade-up py-16" style={{ animationDelay: "280ms" }}>
+          <section id="capabilities" className="fade-up scroll-mt-24 py-16" style={{ animationDelay: "280ms" }}>
           <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
             <div className="space-y-4">
               <p className="section-eyebrow-lg">{content.capabilities.eyebrow}</p>
@@ -736,20 +830,55 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
           </div>
         </section>
 
-          <footer id="footer" className="fade-up flex flex-col gap-4 py-8 text-sm text-[var(--muted)] sm:flex-row sm:items-center sm:justify-between">
-          <p>
-            Build by{" "}
-            <a
-              href="https://x.com/Mileson07"
-              target="_blank"
-              rel="noreferrer"
-              style={{ color: "var(--accent-strong)" }}
-              className="font-medium transition-opacity hover:opacity-80"
-            >
-              超级峰
-            </a>
-          </p>
-        </footer>
+        <section id="footer" className="fade-up scroll-mt-24 py-16" style={{ animationDelay: "340ms" }}>
+          <p className="section-eyebrow-lg mb-7 text-center">{content.contact.eyebrow}</p>
+          <div className="mx-auto grid max-w-[50rem] gap-3 justify-items-center md:grid-cols-2 lg:grid-cols-3">
+            {content.contact.links.map((item) => (
+              <a
+                key={item.title}
+                href={item.href}
+                target="_blank"
+                rel="noreferrer"
+                className="group relative grid aspect-square w-full max-w-[11.4rem] place-items-center overflow-hidden rounded-[1.35rem] border border-[rgba(22,29,44,0.08)] bg-[rgba(255,255,255,0.72)] px-3 py-3 text-center shadow-[0_10px_28px_rgba(23,20,17,0.07)] backdrop-blur-[10px] transition duration-200 hover:-translate-y-1 hover:border-[rgba(228,145,92,0.3)] hover:shadow-[0_16px_36px_rgba(23,20,17,0.11)] dark:border-[var(--line)] dark:bg-[var(--surface)] dark:shadow-none dark:hover:border-[color:var(--line)] dark:hover:bg-[var(--surface-strong)] dark:hover:shadow-[0_10px_24px_rgba(0,0,0,0.12)]"
+              >
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 opacity-45 [background-image:radial-gradient(circle_at_18%_30%,rgba(23,20,17,0.08)_0_1.5px,transparent_3px),radial-gradient(circle_at_74%_22%,rgba(228,145,92,0.12)_0_1.5px,transparent_3px),radial-gradient(circle_at_82%_68%,rgba(23,20,17,0.06)_0_1px,transparent_2px),radial-gradient(circle_at_22%_80%,rgba(228,145,92,0.1)_0_1px,transparent_2px)] dark:opacity-35 dark:[background-image:radial-gradient(circle_at_18%_30%,rgba(255,255,255,0.12)_0_1.5px,transparent_3px),radial-gradient(circle_at_74%_22%,rgba(255,179,109,0.1)_0_1.5px,transparent_3px),radial-gradient(circle_at_82%_68%,rgba(255,255,255,0.08)_0_1px,transparent_2px),radial-gradient(circle_at_22%_80%,rgba(255,179,109,0.08)_0_1px,transparent_2px)]"
+                />
+                <span className="relative flex h-full w-full flex-col items-center justify-center">
+                  <span
+                    className={`grid h-[2.35rem] w-[2.35rem] place-items-center rounded-full ${item.kind === "github" ? "bg-[rgba(239,123,67,0.14)] text-[var(--accent-strong)] dark:bg-[rgba(255,179,109,0.12)] dark:text-[var(--accent-strong)]" : "bg-[rgba(239,123,67,0.1)] text-[var(--accent-strong)] dark:bg-[rgba(255,179,109,0.1)] dark:text-[var(--accent-strong)]"}`}
+                  >
+                    <span className={item.kind === "github" ? "h-[1.35rem] w-[1.35rem]" : ""}>
+                      {renderContactIcon(item.kind)}
+                    </span>
+                  </span>
+                  <span className="mt-2 block text-[1rem] font-semibold tracking-[-0.04em] text-[var(--foreground)] md:text-[1.05rem]">
+                    {item.title}
+                  </span>
+                  <span className="mt-1 block text-[0.78rem] leading-[1.35] text-[var(--muted)] md:text-[0.82rem]">
+                    {item.body}
+                  </span>
+                </span>
+              </a>
+            ))}
+          </div>
+
+          <div className="mt-8 flex justify-center text-sm text-[var(--muted)]">
+            <p>
+              Build by{" "}
+              <a
+                href="https://x.com/Mileson07"
+                target="_blank"
+                rel="noreferrer"
+                style={{ color: "var(--accent-strong)" }}
+                className="font-medium transition-opacity hover:opacity-80"
+              >
+                超级峰
+              </a>
+            </p>
+          </div>
+        </section>
         </div>
       </div>
     </main>
