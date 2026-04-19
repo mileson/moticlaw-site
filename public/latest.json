@@ -1,0 +1,20 @@
+{
+  "version": "0.1.0",
+  "channel": "local",
+  "generated_at": "2026-04-19T11:05:05.136957+00:00",
+  "artifacts": {
+    "darwin-arm64": {
+      "archive": {
+        "filename": "moticlaw-darwin-arm64.tar.gz",
+        "relative_path": "moticlaw-darwin-arm64.tar.gz",
+        "url": "https://github.com/Mileson/moticlaw/releases/download/v0.1.0/moticlaw-darwin-arm64.tar.gz",
+        "sha256": "8f924289ce7a5381276deee6c91736c761c83b8f792e615c58a5d22a869b0e57",
+        "size_bytes": 399963144
+      },
+      "checksum": {
+        "filename": "checksums.txt",
+        "relative_path": "checksums.txt"
+      }
+    }
+  }
+}
