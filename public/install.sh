@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_PATH="${BASH_SOURCE[0]:-${0:-}}"
+if [[ -n "$SCRIPT_PATH" && "$SCRIPT_PATH" != "bash" && "$SCRIPT_PATH" != "-bash" && -e "$SCRIPT_PATH" ]]; then
+  ROOT_DIR="$(cd "$(dirname "$SCRIPT_PATH")" && pwd)"
+else
+  ROOT_DIR=""
+fi
 INSTALL_ROOT="${MOTICLAW_INSTALL_DIR:-${HOME}/.local/share/moticlaw/current}"
 BIN_DIR="${MOTICLAW_BIN_DIR:-${HOME}/.local/bin}"
 START_MODE="${MOTICLAW_INSTALL_MODE:-auto}"
@@ -217,9 +222,51 @@ install_systemd_user_units() {
   local env_file="$2"
   local unit_root="${HOME}/.config/systemd/user"
   mkdir -p "$unit_root"
-  render_systemd_unit "${ROOT_DIR}/deploy/systemd/user/moticlaw-api.service.tmpl" "${unit_root}/moticlaw-api.service" "$install_root" "$env_file"
-  render_systemd_unit "${ROOT_DIR}/deploy/systemd/user/moticlaw-web.service.tmpl" "${unit_root}/moticlaw-web.service" "$install_root" "$env_file"
-  cp "${ROOT_DIR}/deploy/systemd/user/moticlaw.target" "${unit_root}/moticlaw.target"
+  if [[ -n "$ROOT_DIR" && -f "${ROOT_DIR}/deploy/systemd/user/moticlaw-api.service.tmpl" ]]; then
+    render_systemd_unit "${ROOT_DIR}/deploy/systemd/user/moticlaw-api.service.tmpl" "${unit_root}/moticlaw-api.service" "$install_root" "$env_file"
+    render_systemd_unit "${ROOT_DIR}/deploy/systemd/user/moticlaw-web.service.tmpl" "${unit_root}/moticlaw-web.service" "$install_root" "$env_file"
+    cp "${ROOT_DIR}/deploy/systemd/user/moticlaw.target" "${unit_root}/moticlaw.target"
+  else
+    cat > "${unit_root}/moticlaw-api.service" <<EOF
+[Unit]
+Description=MotiClaw Local API
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=${install_root}
+EnvironmentFile=${env_file}
+ExecStart=${install_root}/deploy/linux/run-api.sh
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=default.target
+EOF
+    cat > "${unit_root}/moticlaw-web.service" <<EOF
+[Unit]
+Description=MotiClaw Local Web
+After=network.target moticlaw-api.service
+Requires=moticlaw-api.service
+
+[Service]
+Type=simple
+WorkingDirectory=${install_root}
+EnvironmentFile=${env_file}
+ExecStart=${install_root}/deploy/linux/run-web.sh
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=default.target
+EOF
+    cat > "${unit_root}/moticlaw.target" <<EOF
+[Unit]
+Description=MotiClaw Local Stack
+Wants=moticlaw-api.service moticlaw-web.service
+After=moticlaw-api.service moticlaw-web.service
+EOF
+  fi
   systemctl --user daemon-reload
   systemctl --user enable --now moticlaw.target
   if command -v loginctl >/dev/null 2>&1; then

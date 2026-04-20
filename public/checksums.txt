@@ -1,1 +1,4 @@
-8f924289ce7a5381276deee6c91736c761c83b8f792e615c58a5d22a869b0e57  moticlaw-darwin-arm64.tar.gz
+352b5a2c7638f3966586621fd20ad1ea302cd0a6c48e3780747af0b232b41fd7  moticlaw-linux-x64.tar.gz
+357717c16ac17e9e4aa78cf81963bccc0b16d496f841b14c1293f3ab59e7eb4e  moticlaw-darwin-arm64.tar.gz
+3a2ed92a80f72cd9e15b0457013352d19ad89aae02ce91a618158a9ef734f46a  moticlaw-windows-x64.tar.gz
+a51d00f7bdc9e9a60fcf89d42539c2d59df4247283ddd92e03ca6dbad5122f58  moticlaw-darwin-x64.tar.gz
