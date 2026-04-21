@@ -846,7 +846,7 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
                 href={item.href}
                 target="_blank"
                 rel="noreferrer"
-                className="group relative grid aspect-square w-full max-w-[11.4rem] place-items-center overflow-hidden rounded-[1.35rem] border border-[rgba(22,29,44,0.08)] bg-[rgba(255,255,255,0.72)] px-3 py-3 text-center shadow-[0_10px_28px_rgba(23,20,17,0.07)] backdrop-blur-[10px] transition duration-200 hover:-translate-y-1 hover:border-[rgba(228,145,92,0.3)] hover:shadow-[0_16px_36px_rgba(23,20,17,0.11)] dark:border-[var(--line)] dark:bg-[var(--surface)] dark:shadow-none dark:hover:border-[color:var(--line)] dark:hover:bg-[var(--surface-strong)] dark:hover:shadow-[0_10px_24px_rgba(0,0,0,0.12)]"
+                className="contact-link-card group relative grid aspect-square w-full max-w-[11.4rem] place-items-center overflow-hidden rounded-[1.35rem] border border-[rgba(22,29,44,0.08)] bg-[rgba(255,255,255,0.72)] px-3 py-3 text-center shadow-[0_10px_28px_rgba(23,20,17,0.07)] backdrop-blur-[10px] transition duration-200 hover:-translate-y-1 hover:border-[rgba(228,145,92,0.3)] hover:shadow-[0_16px_36px_rgba(23,20,17,0.11)]"
               >
                 <span
                   aria-hidden="true"
