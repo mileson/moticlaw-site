@@ -273,6 +273,7 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
   const [quickStartManager, setQuickStartManager] = useState<QuickStartManager>("pnpm");
   const [copyHintVisible, setCopyHintVisible] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [heroVideoLoaded, setHeroVideoLoaded] = useState(false);
   const readyRef = useRef(false);
   const initialLocaleRef = useRef(initialLocale);
   const headerRef = useRef<HTMLElement | null>(null);
@@ -657,8 +658,12 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
           </div>
 
           <div className="fade-up relative" style={{ animationDelay: "180ms" }}>
-            <div className="hero-video-frame hero-video-motion ml-auto overflow-hidden rounded-[1.5rem] bg-[#0d1018]">
+            <div className="hero-video-frame hero-video-motion ml-auto overflow-hidden rounded-[1.5rem]">
               <div className="hero-video-stage">
+                <div
+                  aria-hidden="true"
+                  className={`hero-video-placeholder${heroVideoLoaded ? " hero-video-placeholder-hidden" : ""}`}
+                />
                 <video
                   className="hero-video"
                   autoPlay
@@ -667,6 +672,8 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
                   playsInline
                   preload="metadata"
                   aria-label={content.heroVideo.title}
+                  onLoadedData={() => setHeroVideoLoaded(true)}
+                  onCanPlay={() => setHeroVideoLoaded(true)}
                 >
                   <source src="/videos/hero-right.mp4" type="video/mp4" />
                   Your browser does not support the video tag.
