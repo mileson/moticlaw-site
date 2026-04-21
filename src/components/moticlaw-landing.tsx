@@ -2,21 +2,26 @@
 
 import {
   Bug,
+  ChartBar,
   Check,
   ClipboardText,
   ChartLineUp,
   CopySimple,
+  CursorClick,
   DownloadSimple,
   HardDrives,
   Globe,
   Kanban,
   Moon,
+  Package,
   RocketLaunch,
+  Sliders,
   Sun,
   Timer,
   Sparkle,
   UsersThree,
   Translate,
+  Wrench,
 } from "@phosphor-icons/react";
 import { flushSync } from "react-dom";
 import { createPortal } from "react-dom";
@@ -45,9 +50,9 @@ const copy = {
     secondaryCta: "See capabilities",
     statsSectionTitle: "Product Features",
     stats: [
-      { title: "Local-first", body: "Runs on your device. Privacy stays yours.", icon: HardDrives },
-      { title: "Team setup", body: "Build teams. Configure agents with ease.", icon: UsersThree },
-      { title: "Brandable", body: "A clean shell for the public-facing story.", icon: Sparkle },
+      { title: "Local-first", body: "Your data and agents run on your own device — no third-party servers involved.", icon: HardDrives },
+      { title: "Agents, ready to go", body: "Hundreds of pre-configured agents built in. Claim one and it's working — no setup from scratch.", icon: Package },
+      { title: "Zero learning curve", body: "No technical background needed. A few clicks to install, configure, and maintain.", icon: CursorClick },
     ],
     heroVideo: {
       title: "Control plane overview",
@@ -78,28 +83,28 @@ const copy = {
     },
     capabilities: {
       eyebrow: "Capabilities",
-      title: "Same discipline as the reference site, but with MotiClaw's own operator language.",
-      body: "The goal is to make the product understandable in one scroll: what it is, how to launch it, what it replaces, and why it deserves a dedicated homepage.",
+      title: "",
+      body: "From installation to daily operations, from agent onboarding to full lifecycle management — one interface to get it all done.",
       cards: [
         {
           title: "Agent workspace",
-          body: "A grid of working agents with onboarding, identity, and runtime context in one place.",
+          body: "Onboarding, identity, runtime status, channel access — manage the full agent lifecycle in one view.",
           icon: Kanban,
         },
         {
-          title: "Task board",
-          body: "Create, assign, submit, and review work without leaving the console.",
-          icon: ClipboardText,
+          title: "One-click ops",
+          body: "Install, repair, restart, update — one click, done. No commands to remember.",
+          icon: Wrench,
         },
         {
-          title: "Training loop",
-          body: "Run onboarding, gate checks, and completion workflows as a repeatable system.",
-          icon: Timer,
+          title: "Flexible config",
+          body: "AI models, gateway, system parameters — a visual config panel that keeps every setting clear and in control.",
+          icon: Sliders,
         },
         {
-          title: "Ranked progress",
-          body: "Track contribution, output, and confidence with a leaderboard built for operators.",
-          icon: ChartLineUp,
+          title: "Data insights",
+          body: "Token usage, call frequency, cost trends — multi-dimensional data at a glance.",
+          icon: ChartBar,
         },
       ],
     },
@@ -142,9 +147,9 @@ const copy = {
     secondaryCta: "查看能力",
     statsSectionTitle: "产品特色",
     stats: [
-      { title: "本地优先", body: "只运行在自己的设备上，我们尊重你的隐私。", icon: HardDrives },
-      { title: "搭建多Agent团队", body: "一键组建多Agent团队，轻松配置Agent。", icon: UsersThree },
-      { title: "可品牌化", body: "给对外故事留出干净的展示壳。", icon: Sparkle },
+      { title: "本地优先", body: "数据和 Agent 都运行在你自己的设备上，不经过任何第三方服务器。", icon: HardDrives },
+      { title: "Agent 开箱即用", body: "内置上百个预配置 Agent，一键领取就能上岗，不用从零搭建。", icon: Package },
+      { title: "零门槛管理", body: "不需要技术背景，点几下就能完成安装、配置和日常运维。", icon: CursorClick },
     ],
     heroVideo: {
       title: "控制面概览",
@@ -175,28 +180,28 @@ const copy = {
     },
     capabilities: {
       eyebrow: "能力",
-      title: "控制面概览",
-      body: "把本地部署、入职和对外表达收束到一个界面里。",
+      title: "",
+      body: "从安装部署到日常运维，从 Agent 入职到全周期管理，一个界面全搞定。",
       cards: [
         {
           title: "Agent 工区",
-          body: "把入职、身份和运行上下文放进同一视图。",
+          body: "入职、身份、运行状态、渠道接入——一个视图管理 Agent 的全生命周期。",
           icon: Kanban,
         },
         {
-          title: "任务看板",
-          body: "创建、分派、提交和复核都不需要离开控制台。",
-          icon: ClipboardText,
+          title: "一键管理",
+          body: "安装、修复、重启、更新，点一下就完成，不用记任何命令。",
+          icon: Wrench,
         },
         {
-          title: "训练闭环",
-          body: "把 onboarding、门禁检查和完成流程做成可重复的系统。",
-          icon: Timer,
+          title: "灵活配置",
+          body: "AI 模型、网关、系统参数，可视化配置面板让每项设置都清晰可控。",
+          icon: Sliders,
         },
         {
-          title: "进度排行",
-          body: "用排行榜跟踪贡献、产出和信心。",
-          icon: ChartLineUp,
+          title: "数据可视分析",
+          body: "Token 消耗、调用频次、成本趋势，多维度数据一目了然。",
+          icon: ChartBar,
         },
       ],
     },
@@ -289,10 +294,7 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
   const quickStartCommands =
     quickStartTab === "one-liner"
       ? quickStartPlatform === "windows"
-        ? [
-            "Invoke-WebRequest https://moticlaw.com/install.ps1 -OutFile $env:TEMP\\moticlaw-install.ps1",
-            "powershell -ExecutionPolicy Bypass -File $env:TEMP\\moticlaw-install.ps1",
-          ]
+        ? ['powershell -c "irm https://moticlaw.com/install.ps1 | iex"']
         : ["curl -fsSL https://moticlaw.com/install.sh | bash"]
       : quickStartManager === "npm"
         ? ["npm install -g moticlaw", "moticlaw status"]
@@ -833,24 +835,19 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
         </section>
 
           <section id="capabilities" className="fade-up scroll-mt-24 py-16" style={{ animationDelay: "280ms" }}>
-          <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
-            <div className="space-y-4">
-              <p className="section-eyebrow-lg">{content.capabilities.eyebrow}</p>
-              <h2 className="display text-3xl font-semibold text-[var(--foreground)] sm:text-4xl">{content.capabilities.title}</h2>
-              <p className="max-w-xl text-base leading-7 text-[var(--muted)]">{content.capabilities.body}</p>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              {content.capabilities.cards.map((item) => (
-                <article key={item.title} className="rounded-[1.75rem] border border-[var(--line)] bg-[var(--surface)] p-5 text-center">
-                  <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl text-[var(--accent-strong)] leading-none">
-                    <item.icon size={27} weight="regular" className="block" aria-hidden="true" />
-                  </div>
-                  <h3 className="mt-4 text-xl font-semibold text-[var(--foreground)]">{item.title}</h3>
-                  <p className="mt-3 text-sm leading-6 text-[var(--muted)]">{item.body}</p>
-                </article>
-              ))}
-            </div>
+          <p className="section-eyebrow-lg mb-3 text-center">{content.capabilities.eyebrow}</p>
+          {content.capabilities.title ? <h2 className="display mb-3 text-center text-3xl font-semibold text-[var(--foreground)] sm:text-4xl">{content.capabilities.title}</h2> : null}
+          <p className="mx-auto mb-7 max-w-2xl text-center text-base leading-7 text-[var(--muted)]">{content.capabilities.body}</p>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {content.capabilities.cards.map((item) => (
+              <div key={item.title} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 text-center">
+                <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl text-[var(--accent-strong)] leading-none">
+                  <item.icon size={27} weight="regular" className="block" aria-hidden="true" />
+                </div>
+                <p className="mt-3 text-sm font-medium text-[var(--foreground)]">{item.title}</p>
+                <p className="mt-2 text-sm leading-6 text-[var(--muted)]">{item.body}</p>
+              </div>
+            ))}
           </div>
         </section>
 

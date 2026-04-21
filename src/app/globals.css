@@ -858,7 +858,7 @@ html:not(.dark) .quickstart-copy-button:hover {
   border-radius: 9999px;
   padding: 0.34rem 0.72rem;
   background: linear-gradient(180deg, #78cc83 0%, #5db46a 100%);
-  color: #1f2a1f;
+  color: #ffffff;
   font-size: 0.73rem;
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -873,7 +873,7 @@ html:not(.dark) .quickstart-copy-button:hover {
 }
 
 header nav a {
-  font-size: 1.2rem;
+  font-size: 0.96rem;
 }
 
 header .header-icon-btn {
@@ -972,6 +972,14 @@ html.dark .lang-drawer-panel {
   background: var(--surface);
 }
 
+html:not(.dark) .lang-drawer-option:hover {
+  background: rgba(23, 20, 17, 0.08);
+}
+
+html:not(.dark) .lang-drawer-option.lang-drawer-option-active:hover {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
 .lang-drawer-option-active {
   background: color-mix(in srgb, var(--accent) 12%, transparent);
   color: var(--accent-strong);
@@ -980,6 +988,10 @@ html.dark .lang-drawer-panel {
 html.dark .lang-drawer-option-active {
   background: rgba(255, 179, 109, 0.1);
   color: #ffd6a9;
+}
+
+html.dark .lang-drawer-option.lang-drawer-option-active:hover {
+  background: rgba(255, 179, 109, 0.16);
 }
 
 .lang-drawer-check {
