@@ -379,6 +379,15 @@ html.dark .hero-video-placeholder {
   box-shadow: 0 16px 36px rgba(23, 20, 17, 0.11);
 }
 
+.contact-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.contact-grid > :last-child {
+  grid-column: 1 / -1;
+  justify-self: center;
+}
+
 html.dark .contact-link-card {
   background: var(--surface);
   border-color: var(--line);
@@ -703,8 +712,14 @@ html.dark .quickstart-tabs-compact > .quickstart-tab-active {
 .quickstart-command-row {
   position: relative;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.5rem;
+}
+
+.quickstart-command-lines {
+  flex: 1 1 auto;
+  display: grid;
+  gap: 0.16rem;
 }
 
 .quickstart-copy-wrap {
@@ -853,18 +868,22 @@ html:not(.dark) .quickstart-copy-button:hover {
   white-space: nowrap;
 }
 
+.header-desktop-cta {
+  display: none;
+}
+
 header nav a {
   font-size: 1.2rem;
 }
 
 header .header-icon-btn {
-  width: 4rem;
-  height: 4rem;
+  width: 2.9rem;
+  height: 2.9rem;
 }
 
 header .header-icon-btn svg {
-  width: 26px;
-  height: 26px;
+  width: 21px;
+  height: 21px;
 }
 
 .quickstart-copy-button:focus-visible {
@@ -969,4 +988,138 @@ html.dark .lang-drawer-option-active {
   border-radius: 9999px;
   background: var(--accent);
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 16%, transparent);
+}
+
+@media (max-width: 639px) {
+  .site-header {
+    gap: 0.75rem;
+  }
+
+  .site-header-brand {
+    gap: 0.55rem;
+    min-width: 0;
+  }
+
+  .site-header-brand-title {
+    font-size: 0.82rem;
+    letter-spacing: 0.12em;
+  }
+
+  .hero-section {
+    gap: 1.75rem;
+  }
+
+  .hero-title {
+    max-width: 10ch;
+  }
+
+  .hero-subtitle {
+    max-width: none;
+  }
+
+  .hero-actions {
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .hero-platform-strip {
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+  }
+
+  .hero-primary-cta {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .hero-video-frame {
+    width: min(100%, 17.5rem);
+    margin-inline: auto;
+  }
+
+  .quickstart-window-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .quickstart-window-left,
+  .quickstart-window-right {
+    width: 100%;
+  }
+
+  .quickstart-window-right {
+    justify-content: flex-start;
+  }
+
+  .quickstart-tabs {
+    max-width: 100%;
+  }
+
+  .quickstart-window-body {
+    padding: 0.8rem;
+  }
+
+  .quickstart-section-eyebrow,
+  .section-eyebrow-lg {
+    font-size: 0.82rem !important;
+    letter-spacing: 0.2em;
+  }
+
+  .quickstart-section-title {
+    font-size: 1.35rem;
+  }
+
+  .quickstart-command-list {
+    padding: 0.75rem;
+  }
+
+  .quickstart-command-line {
+    gap: 0.4rem;
+  }
+
+  .quickstart-command-prompt,
+  .quickstart-command-text {
+    line-height: 1.35rem;
+  }
+
+  .quickstart-command-prompt {
+    font-size: 0.74rem;
+  }
+
+  .quickstart-command-text {
+    font-size: 0.78rem;
+  }
+
+  .quickstart-copy-hint {
+    left: auto;
+    right: 0;
+    top: calc(100% + 0.45rem);
+    transform: none;
+  }
+}
+
+@media (min-width: 640px) {
+  .header-desktop-cta {
+    display: inline-flex;
+  }
+
+  header .header-icon-btn {
+    width: 4rem;
+    height: 4rem;
+  }
+
+  header .header-icon-btn svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  .contact-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .contact-grid > :last-child {
+    grid-column: auto;
+    justify-self: stretch;
+  }
 }

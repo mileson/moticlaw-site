@@ -255,7 +255,7 @@ function applyTheme(theme: ThemeMode) {
 
 function BrandIcon() {
   return (
-    <span className="flex h-[46px] w-[46px] items-center justify-center overflow-hidden rounded-lg">
+    <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg sm:h-[46px] sm:w-[46px]">
       <img src="/icon.svg?v=3" alt="" aria-hidden="true" className="block h-full w-full object-contain" />
     </span>
   );
@@ -282,6 +282,7 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
   const [localeMenuRect, setLocaleMenuRect] = useState<{ top: number; right: number } | null>(null);
   const [backdropTop, setBackdropTop] = useState(88);
   const [headerPinned, setHeaderPinned] = useState(false);
+  const [isCompactViewport, setIsCompactViewport] = useState(false);
 
   const content = copy[locale];
   const activeQuickStartTab = content.quickStart.tabs.find((tab) => tab.key === quickStartTab) ?? content.quickStart.tabs[0];
@@ -331,11 +332,13 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
   const toggleTheme = (event: MouseEvent<HTMLButtonElement>) => {
     const currentResolved = getResolvedTheme(theme);
     const nextTheme: Exclude<ThemeMode, "system"> = currentResolved === "dark" ? "light" : "dark";
+    const disableFancyTransition = window.innerWidth < 768;
 
     if (
       typeof document === "undefined" ||
       !document.startViewTransition ||
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      disableFancyTransition
     ) {
       applyTheme(nextTheme);
       setTheme(nextTheme);
@@ -445,6 +448,14 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
   }, [localeMenuOpen]);
 
   useEffect(() => {
+    const media = window.matchMedia("(max-width: 767px)");
+    const updateCompactViewport = () => setIsCompactViewport(media.matches);
+    updateCompactViewport();
+    media.addEventListener("change", updateCompactViewport);
+    return () => media.removeEventListener("change", updateCompactViewport);
+  }, []);
+
+  useEffect(() => {
     const onScroll = () => setHeaderPinned(window.scrollY > 8);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -480,20 +491,22 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
   return (
     <main className="site-shell relative overflow-x-hidden">
       <div
-        className={`fixed inset-x-0 top-0 z-40 transition-[background-color,box-shadow,backdrop-filter,border-color] duration-300 ${
-          headerPinned
+        className={`site-header-shell fixed inset-x-0 top-0 z-40 transition-[background-color,box-shadow,backdrop-filter,border-color] duration-300 ${
+          headerPinned || isCompactViewport
             ? "border-b border-[var(--line)] bg-[var(--surface-strong)]/70 shadow-[0_6px_18px_rgba(0,0,0,0.04)] backdrop-blur-xl"
             : "border-b border-transparent bg-transparent shadow-none backdrop-blur-0"
         }`}
       >
         <header
           ref={headerRef}
-          className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-5 py-2 sm:px-8 lg:px-10"
+          className="site-header mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-2 sm:px-8 lg:px-10"
         >
-          <a href="#top" className="flex items-center gap-3">
+          <a href="#top" className="site-header-brand flex items-center gap-3">
             <BrandIcon />
             <div className="leading-tight">
-              <p className="display text-[1.04rem] font-semibold tracking-[0.2em] text-[var(--accent-strong)]">MotiClaw</p>
+              <p className="site-header-brand-title display text-[0.9rem] font-semibold tracking-[0.15em] text-[var(--accent-strong)] sm:text-[1.04rem] sm:tracking-[0.2em]">
+                MotiClaw
+              </p>
             </div>
           </a>
 
@@ -542,7 +555,7 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
 
             <a
               href="#quick-start"
-              className="btn-base btn-primary ml-2 hidden sm:inline-flex min-w-[11.375rem] justify-center"
+              className="header-desktop-cta btn-base btn-primary ml-2 min-w-[11.375rem] justify-center"
             >
               <RocketLaunch size={16} weight="regular" aria-hidden="true" />
               {content.primaryCta}
@@ -551,7 +564,7 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
         </header>
       </div>
 
-      <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-5 pt-16 pb-5 sm:px-8 lg:px-10">
+      <div className="site-page-shell mx-auto flex min-h-screen w-full max-w-7xl flex-col px-4 pt-[4.75rem] pb-8 sm:px-8 sm:pt-16 lg:px-10">
         {localeMenuOpen && localeMenuRect && typeof document !== "undefined"
           ? createPortal(
               <>
@@ -614,14 +627,14 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
             )
           : null}
 
-        <section id="top" className="grid flex-1 gap-12 pb-16 pt-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-center lg:pb-24 lg:pt-16">
-          <div className="fade-up space-y-7 lg:pl-8 xl:pl-12" style={{ animationDelay: "60ms" }}>
+        <section id="top" className="hero-section grid flex-1 gap-8 pb-10 pt-4 sm:gap-12 sm:pb-16 sm:pt-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-center lg:pb-24 lg:pt-16">
+          <div className="hero-copy fade-up space-y-6 lg:pl-8 xl:pl-12" style={{ animationDelay: "60ms" }}>
             <div className="space-y-5">
-              <h1 className="display max-w-4xl whitespace-pre-line text-5xl leading-[1.08] font-semibold text-[var(--foreground)] sm:leading-[1.04] sm:text-6xl lg:text-7xl">
+              <h1 className="hero-title display max-w-4xl whitespace-pre-line text-[clamp(2.6rem,11vw,4rem)] leading-[1.02] font-semibold text-[var(--foreground)] sm:leading-[1.04] sm:text-6xl lg:text-7xl">
                 {content.heroTitle}
               </h1>
-              <p className="max-w-2xl text-lg leading-8 text-[var(--muted)] sm:text-xl">{content.heroBody}</p>
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-start sm:gap-5">
+              <p className="hero-subtitle max-w-2xl text-base leading-7 text-[var(--muted)] sm:text-xl sm:leading-8">{content.heroBody}</p>
+              <div className="hero-actions flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-start sm:gap-5">
                 <div className="hero-platform-strip inline-flex items-center gap-2 rounded-full py-2">
                   <span className="hero-platform-strip-label text-[0.8rem] font-medium tracking-[0.08em]">{content.heroPlatformLabel}</span>
                   <a
@@ -647,7 +660,7 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
                 </div>
                 <a
                   href="#quick-start"
-                  className="btn-base btn-primary shrink-0 min-w-[11.375rem] justify-center px-7 py-4"
+                  className="hero-primary-cta btn-base btn-primary shrink-0 min-w-[11.375rem] justify-center px-7 py-4"
                 >
                   <RocketLaunch size={16} weight="regular" aria-hidden="true" />
                   {content.primaryCta}
@@ -771,9 +784,13 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
                   <div className="quickstart-command-list" aria-label={activeQuickStartTab.label}>
                     <p className="quickstart-command-note"># {quickStartNote}</p>
                     <div className="quickstart-command-row">
-                      <div className="quickstart-command-line">
-                        <span className="quickstart-command-prompt">$</span>
-                        <span className="quickstart-command-text">{quickStartCommands.join("\n")}</span>
+                      <div className="quickstart-command-lines">
+                        {quickStartCommands.map((command) => (
+                          <div key={command} className="quickstart-command-line">
+                            <span className="quickstart-command-prompt">$</span>
+                            <span className="quickstart-command-text">{command}</span>
+                          </div>
+                        ))}
                       </div>
 
                       <div className="quickstart-copy-wrap">
@@ -839,7 +856,7 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
 
         <section id="footer" className="fade-up scroll-mt-24 py-16" style={{ animationDelay: "340ms" }}>
           <p className="section-eyebrow-lg mb-7 text-center">{content.contact.eyebrow}</p>
-          <div className="mx-auto grid max-w-[50rem] gap-3 justify-items-center md:grid-cols-2 lg:grid-cols-3">
+          <div className="contact-grid mx-auto grid max-w-[50rem] gap-3 justify-items-center md:grid-cols-2 lg:grid-cols-3">
             {content.contact.links.map((item) => (
               <a
                 key={item.title}
