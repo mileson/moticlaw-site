@@ -1,7 +1,7 @@
 {
   "version": "0.1.1",
   "channel": "release",
-  "generated_at": "2026-04-22T08:58:31.027406+00:00",
+  "generated_at": "2026-04-22T09:04:02.238936+00:00",
   "artifacts": {
     "darwin-arm64": {
       "archive": {
@@ -14,14 +14,6 @@
       "checksum": {
         "filename": "checksums.txt",
         "relative_path": "checksums.txt"
-      },
-      "build": {
-        "version": "0.1.1",
-        "channel": "release",
-        "platform": "darwin-arm64",
-        "git_sha": "87773394e3430506d8f09ac789cbe74ea55c3c84",
-        "git_branch": "main",
-        "build_time": "2026-04-22T08:41:24.902223+00:00"
       }
     },
     "darwin-x64": {
@@ -35,14 +27,6 @@
       "checksum": {
         "filename": "checksums.txt",
         "relative_path": "checksums.txt"
-      },
-      "build": {
-        "version": "0.1.1",
-        "channel": "release",
-        "platform": "darwin-x64",
-        "git_sha": "87773394e3430506d8f09ac789cbe74ea55c3c84",
-        "git_branch": "main",
-        "build_time": "2026-04-22T08:40:35.181517+00:00"
       }
     },
     "linux-x64": {
@@ -56,14 +40,6 @@
       "checksum": {
         "filename": "checksums.txt",
         "relative_path": "checksums.txt"
-      },
-      "build": {
-        "version": "0.1.1",
-        "channel": "release",
-        "platform": "linux-x64",
-        "git_sha": "87773394e3430506d8f09ac789cbe74ea55c3c84",
-        "git_branch": "main",
-        "build_time": "2026-04-22T08:48:02.613804+00:00"
       }
     },
     "windows-x64": {
@@ -77,19 +53,7 @@
       "checksum": {
         "filename": "checksums.txt",
         "relative_path": "checksums.txt"
-      },
-      "build": {
-        "version": "0.1.1",
-        "channel": "release",
-        "platform": "windows-x64",
-        "git_sha": "87773394e3430506d8f09ac789cbe74ea55c3c84",
-        "git_branch": "main",
-        "build_time": "2026-04-22T08:57:50.416353+00:00"
       }
     }
-  },
-  "source": {
-    "git_sha": "87773394e3430506d8f09ac789cbe74ea55c3c84",
-    "git_branch": "main"
   }
 }
