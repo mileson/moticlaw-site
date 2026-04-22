@@ -516,6 +516,41 @@ stop_detached_mode() {
   done
 }
 
+start_background_process() {
+  local install_root="$1"
+  local log_file="$2"
+  local pid_file="$3"
+  shift 3
+  python3 - <<'PY' "$install_root" "$log_file" "$pid_file" "$@"
+from pathlib import Path
+import os
+import subprocess
+import sys
+
+cwd = sys.argv[1]
+log_path = Path(sys.argv[2])
+pid_path = Path(sys.argv[3])
+cmd = sys.argv[4:]
+
+log_path.parent.mkdir(parents=True, exist_ok=True)
+pid_path.parent.mkdir(parents=True, exist_ok=True)
+
+with log_path.open("ab", buffering=0) as log_file:
+    process = subprocess.Popen(
+        cmd,
+        cwd=cwd,
+        env=os.environ.copy(),
+        stdin=subprocess.DEVNULL,
+        stdout=log_file,
+        stderr=subprocess.STDOUT,
+        start_new_session=True,
+        close_fds=True,
+    )
+
+pid_path.write_text(f"{process.pid}\n", encoding="utf-8")
+PY
+}
+
 start_detached_mode() {
   local install_root="$1"
   local env_file="$2"
@@ -524,10 +559,10 @@ start_detached_mode() {
   set -a
   source "$env_file"
   set +a
-  nohup "${install_root}/deploy/linux/run-api.sh" >> "${install_root}/logs/install-api.log" 2>&1 &
-  echo $! > "${install_root}/run/api.pid"
-  nohup "${install_root}/deploy/linux/run-web.sh" >> "${install_root}/logs/install-web.log" 2>&1 &
-  echo $! > "${install_root}/run/web.pid"
+  start_background_process "$install_root" "${install_root}/logs/install-api.log" "${install_root}/run/api.pid" \
+    "${install_root}/deploy/linux/run-api.sh"
+  start_background_process "$install_root" "${install_root}/logs/install-web.log" "${install_root}/run/web.pid" \
+    "${install_root}/deploy/linux/run-web.sh"
 }
 
 resolve_start_mode() {
