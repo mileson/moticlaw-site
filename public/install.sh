@@ -14,7 +14,10 @@ DRY_RUN="${MOTICLAW_DRY_RUN:-0}"
 MANIFEST_URL="${MOTICLAW_RELEASE_MANIFEST_URL:-}"
 MANIFEST_FILE="${MOTICLAW_RELEASE_MANIFEST_FILE:-}"
 ARCHIVE_OVERRIDE="${MOTICLAW_RELEASE_ARCHIVE:-}"
+PROGRESS_MODE="${MOTICLAW_PROGRESS:-auto}"
 INSTALL_TMPDIR=""
+INSTALL_STAGE_TOTAL=8
+INSTALL_STAGE_INDEX=0
 
 BOLD=$'\033[1m'
 GREEN=$'\033[32m'
@@ -28,6 +31,45 @@ info() { log "${CYAN}[*]${NC} $*"; }
 ok() { log "${GREEN}[ok]${NC} $*"; }
 warn() { log "${YELLOW}[warn]${NC} $*"; }
 fail() { log "${RED}[err]${NC} $*"; exit 1; }
+progress_enabled() {
+  case "${PROGRESS_MODE}" in
+    always) return 0 ;;
+    never) return 1 ;;
+    *) [[ -t 1 || -t 2 ]] ;;
+  esac
+}
+step() {
+  INSTALL_STAGE_INDEX=$((INSTALL_STAGE_INDEX + 1))
+  info "[${INSTALL_STAGE_INDEX}/${INSTALL_STAGE_TOTAL}] $*"
+}
+clear_progress_line() {
+  if progress_enabled; then
+    printf '\r\033[K'
+  fi
+}
+render_progress_bar() {
+  local current="$1"
+  local total="$2"
+  local label="$3"
+  local width=28
+  local filled=0
+  local percent=100
+  if [[ "${total}" -gt 0 ]]; then
+    if [[ "${current}" -lt 0 ]]; then
+      current=0
+    elif [[ "${current}" -gt "${total}" ]]; then
+      current="${total}"
+    fi
+    filled=$(( current * width / total ))
+    percent=$(( current * 100 / total ))
+  fi
+  local empty=$(( width - filled ))
+  printf '\r\033[K%s [%s%s] %3d%%' \
+    "${label}" \
+    "$(printf '%*s' "${filled}" '' | tr ' ' '#')" \
+    "$(printf '%*s' "${empty}" '' | tr ' ' '-')" \
+    "${percent}"
+}
 
 detect_os() {
   case "$(uname -s 2>/dev/null || true)" in
@@ -73,7 +115,21 @@ fetch_to_file() {
     cp "${source_ref#file://}" "$target_file"
     return
   fi
-  curl -fsSL "$source_ref" -o "$target_file"
+  local curl_args=(
+    --fail
+    --location
+    --retry 3
+    --retry-all-errors
+    --retry-delay 2
+    --continue-at -
+  )
+  if progress_enabled; then
+    curl_args+=(--progress-bar)
+  else
+    curl_args+=(--silent --show-error)
+  fi
+  curl "${curl_args[@]}" "$source_ref" -o "$target_file"
+  clear_progress_line
 }
 
 sha256_file() {
@@ -107,6 +163,7 @@ print(json.dumps({
     "channel": payload.get("channel"),
     "archive": archive,
     "checksum": checksum,
+    "build": artifact.get("build") or payload.get("build") or {},
 }, ensure_ascii=False))
 PY
 }
@@ -132,6 +189,106 @@ resolve_ref_from_manifest() {
     return
   fi
   printf '%s/%s\n' "$manifest_dir" "$ref"
+}
+
+metadata_field() {
+  local metadata_file="$1"
+  local field_name="$2"
+  if [[ ! -f "$metadata_file" ]]; then
+    return 0
+  fi
+  python3 - <<'PY' "$metadata_file" "$field_name"
+from pathlib import Path
+import json
+import sys
+
+payload = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+value = payload.get(sys.argv[2])
+if value is None:
+    raise SystemExit(0)
+print(value)
+PY
+}
+
+extract_archive_with_progress() {
+  local archive_path="$1"
+  local target_dir="$2"
+  local label="${3:-解压安装包}"
+  local lower_archive
+  lower_archive="$(printf '%s' "$archive_path" | tr '[:upper:]' '[:lower:]')"
+  local list_flags=""
+  local extract_flags=""
+  case "$lower_archive" in
+    *.tar.gz|*.tgz)
+      list_flags="tzf"
+      extract_flags="xzf"
+      ;;
+    *.tar.xz|*.txz)
+      list_flags="tJf"
+      extract_flags="xJf"
+      ;;
+    *.tar)
+      list_flags="tf"
+      extract_flags="xf"
+      ;;
+    *.zip)
+      python3 - <<'PY' "$archive_path" "$target_dir" "$label" "$PROGRESS_MODE"
+from pathlib import Path
+import os
+import sys
+import zipfile
+
+archive_path = Path(sys.argv[1])
+target_dir = Path(sys.argv[2])
+label = sys.argv[3]
+mode = sys.argv[4]
+interactive = mode == "always" or (mode == "auto" and (sys.stdout.isatty() or sys.stderr.isatty()))
+
+
+def render(current: int, total: int) -> None:
+    if not interactive:
+        return
+    width = 28
+    percent = 100 if total <= 0 else int(current * 100 / total)
+    filled = width if total <= 0 else int(current * width / total)
+    bar = "#" * filled + "-" * (width - filled)
+    sys.stdout.write(f"\r\033[K{label} [{bar}] {percent:3d}%")
+    sys.stdout.flush()
+
+
+with zipfile.ZipFile(archive_path) as zf:
+    infos = zf.infolist()
+    total = len(infos)
+    target_dir.mkdir(parents=True, exist_ok=True)
+    for index, info in enumerate(infos, start=1):
+        zf.extract(info, target_dir)
+        render(index, total)
+
+if interactive:
+    sys.stdout.write("\r\033[K")
+    sys.stdout.flush()
+PY
+      return
+      ;;
+    *)
+      fail "不支持的压缩包格式：$archive_path"
+      ;;
+  esac
+
+  if progress_enabled; then
+    local raw_total
+    raw_total="$(tar "-${list_flags}" "$archive_path" | wc -l | tr -d '[:space:]')"
+    if [[ -n "${raw_total}" && "${raw_total}" -gt 0 ]]; then
+      local current=0
+      tar "-${extract_flags}" "$archive_path" -C "$target_dir" 2>/dev/null | while IFS= read -r _; do
+        current=$((current + 1))
+        render_progress_bar "$current" "$raw_total" "$label"
+      done
+      clear_progress_line
+      return
+    fi
+  fi
+  tar "-${extract_flags}" "$archive_path" -C "$target_dir"
 }
 
 sync_tree() {
@@ -204,6 +361,76 @@ fi
 exec "${install_root}/bin/moticlawctl" "\$@"
 EOF
   chmod +x "${BIN_DIR}/moticlaw"
+}
+
+read_release_build_value() {
+  local release_root="$1"
+  local key="$2"
+  python3 - <<'PY' "$release_root" "$key"
+from pathlib import Path
+import json
+import sys
+
+release_root = Path(sys.argv[1])
+key = sys.argv[2]
+path = release_root / "web" / "release-build.json"
+if not path.exists():
+    raise SystemExit(0)
+try:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+except Exception:
+    raise SystemExit(0)
+value = payload.get(key)
+if isinstance(value, str):
+    print(value)
+PY
+}
+
+resolve_node_archive_name() {
+  local os="$1"
+  local arch="$2"
+  local version="$3"
+  case "${os}:${arch}" in
+    darwin:x64) printf 'node-%s-darwin-x64.tar.gz\n' "$version" ;;
+    darwin:arm64) printf 'node-%s-darwin-arm64.tar.gz\n' "$version" ;;
+    linux:x64) printf 'node-%s-linux-x64.tar.xz\n' "$version" ;;
+    linux:arm64) printf 'node-%s-linux-arm64.tar.xz\n' "$version" ;;
+    *) return 1 ;;
+  esac
+}
+
+ensure_node_runtime() {
+  local install_root="$1"
+  local os="$2"
+  local arch="$3"
+  if [[ -x "${install_root}/web/node/bin/node" || -x "${install_root}/web/node/bin/node.exe" ]]; then
+    return 0
+  fi
+  if command -v node >/dev/null 2>&1; then
+    return 0
+  fi
+
+  local runtime_version runtime_base_url archive_name archive_url archive_path extract_root extracted_dir
+  runtime_version="${MOTICLAW_RUNTIME_NODE_VERSION:-$(read_release_build_value "$install_root" "runtime_node_version")}"
+  runtime_base_url="${MOTICLAW_RUNTIME_NODE_BASE_URL:-$(read_release_build_value "$install_root" "runtime_node_base_url")}"
+  runtime_version="${runtime_version:-v22.17.0}"
+  runtime_base_url="${runtime_base_url:-https://nodejs.org/dist}"
+  archive_name="$(resolve_node_archive_name "$os" "$arch" "$runtime_version")" || fail "当前平台缺少可下载的 Node 预编译包：${os}-${arch}"
+  archive_url="${runtime_base_url%/}/${runtime_version}/${archive_name}"
+  archive_path="${INSTALL_TMPDIR}/${archive_name}"
+
+  info "未检测到系统 Node，正在下载官方运行时：${archive_name}"
+  fetch_to_file "$archive_url" "$archive_path"
+
+  extract_root="${INSTALL_TMPDIR}/node-runtime"
+  rm -rf "$extract_root" "${install_root}/web/node"
+  mkdir -p "$extract_root" "${install_root}/web"
+  extract_archive_with_progress "$archive_path" "$extract_root" "解压 Node 运行时"
+  extracted_dir="$(find "$extract_root" -mindepth 1 -maxdepth 1 -type d | head -n 1)"
+  [[ -n "${extracted_dir:-}" ]] || fail "Node 运行时解压失败：${archive_name}"
+  mv "$extracted_dir" "${install_root}/web/node"
+  [[ -x "${install_root}/web/node/bin/node" ]] || fail "Node 运行时安装失败：未找到 node 可执行文件"
+  ok "已安装内置 Node 运行时：$("${install_root}/web/node/bin/node" --version)"
 }
 
 render_systemd_unit() {
@@ -319,18 +546,25 @@ resolve_start_mode() {
 wait_for_http() {
   local url="$1"
   local timeout_sec="${2:-60}"
+  local label="${3:-等待服务启动}"
   local deadline=$((SECONDS + timeout_sec))
   while [[ "$SECONDS" -lt "$deadline" ]]; do
     if curl -fsS "$url" >/dev/null 2>&1; then
+      clear_progress_line
       return 0
+    fi
+    if progress_enabled; then
+      local elapsed=$((timeout_sec - (deadline - SECONDS)))
+      render_progress_bar "$elapsed" "$timeout_sec" "$label"
     fi
     sleep 1
   done
+  clear_progress_line
   return 1
 }
 
 main() {
-  local os arch platform_key manifest_source manifest_base_dir manifest_path manifest_json archive_ref archive_sha archive_path extract_dir env_file start_mode version channel
+  local os arch platform_key manifest_source manifest_base_dir manifest_path manifest_json archive_ref archive_sha archive_path extract_dir env_file start_mode version channel build_sha build_time build_branch installed_build_sha installed_build_time installed_build_branch installed_platform
   os="$(detect_os)"
   [[ "${os}" != "unsupported" ]] || fail "仅支持 macOS / Linux。"
   arch="$(detect_arch)"
@@ -343,6 +577,7 @@ main() {
   INSTALL_TMPDIR="$(mktemp -d)"
   trap 'rm -rf "${INSTALL_TMPDIR}"' EXIT
   manifest_path="${INSTALL_TMPDIR}/release-manifest.json"
+  step "读取发布清单"
   fetch_to_file "$manifest_source" "$manifest_path"
   if [[ "$manifest_source" == http://* || "$manifest_source" == https://* ]]; then
     manifest_base_dir=""
@@ -358,6 +593,27 @@ PY
   channel="$(python3 - <<'PY' "$manifest_json"
 import json, sys
 print(json.loads(sys.argv[1]).get("channel") or "release")
+PY
+)"
+  build_sha="$(python3 - <<'PY' "$manifest_json"
+import json, sys
+payload = json.loads(sys.argv[1])
+build = payload.get("build") or {}
+print(build.get("git_sha") or "")
+PY
+)"
+  build_time="$(python3 - <<'PY' "$manifest_json"
+import json, sys
+payload = json.loads(sys.argv[1])
+build = payload.get("build") or {}
+print(build.get("build_time") or "")
+PY
+)"
+  build_branch="$(python3 - <<'PY' "$manifest_json"
+import json, sys
+payload = json.loads(sys.argv[1])
+build = payload.get("build") or {}
+print(build.get("git_branch") or "")
 PY
 )"
 
@@ -383,6 +639,7 @@ PY
   [[ -n "$archive_ref" ]] || fail "release manifest 中缺少 archive 信息。"
   archive_ref="$(resolve_ref_from_manifest "$manifest_source" "$manifest_base_dir" "$archive_ref")"
   archive_path="${INSTALL_TMPDIR}/release.tar.gz"
+  step "下载安装包"
   fetch_to_file "$archive_ref" "$archive_path"
   if [[ -n "$archive_sha" ]]; then
     actual_sha="$(sha256_file "$archive_path")"
@@ -397,6 +654,9 @@ PY
   info "Platform:      ${platform_key}"
   info "Install root:  ${INSTALL_ROOT}"
   info "Start mode:    ${start_mode}"
+  [[ -n "${build_sha:-}" ]] && info "Build SHA:     ${build_sha}"
+  [[ -n "${build_branch:-}" ]] && info "Build branch:  ${build_branch}"
+  [[ -n "${build_time:-}" ]] && info "Build time:    ${build_time}"
 
   if [[ "${DRY_RUN}" == "1" ]]; then
     warn "dry-run 模式，仅打印动作"
@@ -405,10 +665,15 @@ PY
 
   extract_dir="${INSTALL_TMPDIR}/extracted"
   mkdir -p "$extract_dir"
-  tar -xzf "$archive_path" -C "$extract_dir"
+  step "解压安装包"
+  extract_archive_with_progress "$archive_path" "$extract_dir" "解压安装包"
+  step "同步安装文件"
   sync_tree "$extract_dir" "$INSTALL_ROOT"
+  step "检查 Node 运行环境"
+  ensure_node_runtime "$INSTALL_ROOT" "$os" "$arch"
 
   env_file="${INSTALL_ROOT}/env/.env"
+  step "写入本地配置"
   ensure_env_file "$INSTALL_ROOT"
   upsert_env "$env_file" "MOTICLAW_HOME" "$INSTALL_ROOT"
   [[ -n "${MOTICLAW_API_HOST:-}" ]] && upsert_env "$env_file" "MOTICLAW_API_HOST" "${MOTICLAW_API_HOST}"
@@ -421,6 +686,7 @@ PY
   upsert_env "$env_file" "OPENCLAW_PROXY_BASE" "http://${effective_api_host}:${effective_api_port}"
   install_cli_wrapper "$INSTALL_ROOT"
 
+  step "启动本地服务"
   if [[ "$start_mode" == "systemd-user" ]]; then
     install_systemd_user_units "$INSTALL_ROOT" "$env_file"
   else
@@ -431,10 +697,21 @@ PY
   source "$env_file"
   set +a
 
-  wait_for_http "http://${MOTICLAW_API_HOST:-127.0.0.1}:${MOTICLAW_API_PORT:-8088}/healthz" 90 || fail "后端未在预期时间内启动。"
-  wait_for_http "http://${MOTICLAW_WEB_HOST:-127.0.0.1}:${MOTICLAW_WEB_PORT:-3000}/login" 90 || fail "前端未在预期时间内启动。"
+  step "等待服务就绪"
+  wait_for_http "http://${MOTICLAW_API_HOST:-127.0.0.1}:${MOTICLAW_API_PORT:-8088}/healthz" 90 "等待后端启动" || fail "后端未在预期时间内启动。"
+  wait_for_http "http://${MOTICLAW_WEB_HOST:-127.0.0.1}:${MOTICLAW_WEB_PORT:-3000}/login" 90 "等待前端启动" || fail "前端未在预期时间内启动。"
+
+  installed_build_sha="$(metadata_field "${INSTALL_ROOT}/release-metadata.json" git_sha)"
+  installed_build_time="$(metadata_field "${INSTALL_ROOT}/release-metadata.json" build_time)"
+  installed_build_branch="$(metadata_field "${INSTALL_ROOT}/release-metadata.json" git_branch)"
+  installed_platform="$(metadata_field "${INSTALL_ROOT}/release-metadata.json" platform)"
 
   ok "安装完成"
+  log ""
+  [[ -n "${installed_build_sha:-}" ]] && log "已安装构建：${BOLD}${installed_build_sha}${NC}"
+  [[ -n "${installed_build_branch:-}" ]] && log "构建分支：${installed_build_branch}"
+  [[ -n "${installed_build_time:-}" ]] && log "构建时间：${installed_build_time}"
+  [[ -n "${installed_platform:-}" ]] && log "构建平台：${installed_platform}"
   log ""
   log "后续命令："
   log "  ${BOLD}moticlaw status${NC}"

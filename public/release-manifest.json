@@ -1,59 +1,95 @@
 {
-  "version": "0.1.0",
+  "version": "0.1.1",
   "channel": "release",
-  "generated_at": "2026-04-20T17:47:20.224384+00:00",
+  "generated_at": "2026-04-22T08:18:13.338710+00:00",
   "artifacts": {
     "darwin-arm64": {
       "archive": {
         "filename": "moticlaw-darwin-arm64.tar.gz",
         "relative_path": "moticlaw-darwin-arm64.tar.gz",
-        "url": "https://github.com/mileson/moticlaw/releases/download/v0.1.0/moticlaw-darwin-arm64.tar.gz",
-        "sha256": "357717c16ac17e9e4aa78cf81963bccc0b16d496f841b14c1293f3ab59e7eb4e",
-        "size_bytes": 417176624
+        "url": "https://github.com/mileson/moticlaw/releases/download/v0.1.1/moticlaw-darwin-arm64.tar.gz",
+        "sha256": "055f5bbd833e0a2d773fed065f316abec84a1fea256965bc28b764b235cd2d04",
+        "size_bytes": 78446931
       },
       "checksum": {
         "filename": "checksums.txt",
         "relative_path": "checksums.txt"
+      },
+      "build": {
+        "version": "0.1.1",
+        "channel": "release",
+        "platform": "darwin-arm64",
+        "git_sha": "6aab43cd145e08332f2dedf6dbefc3e6fdd0a200",
+        "git_branch": "main",
+        "build_time": "2026-04-22T08:00:30.047390+00:00"
       }
     },
     "darwin-x64": {
       "archive": {
         "filename": "moticlaw-darwin-x64.tar.gz",
         "relative_path": "moticlaw-darwin-x64.tar.gz",
-        "url": "https://github.com/mileson/moticlaw/releases/download/v0.1.0/moticlaw-darwin-x64.tar.gz",
-        "sha256": "a51d00f7bdc9e9a60fcf89d42539c2d59df4247283ddd92e03ca6dbad5122f58",
-        "size_bytes": 429887429
+        "url": "https://github.com/mileson/moticlaw/releases/download/v0.1.1/moticlaw-darwin-x64.tar.gz",
+        "sha256": "b04f1a3e64e6de9b28e814cc2a35fc8fa1ff90066cb1e3735d2a9ff250f1cdba",
+        "size_bytes": 82038653
       },
       "checksum": {
         "filename": "checksums.txt",
         "relative_path": "checksums.txt"
+      },
+      "build": {
+        "version": "0.1.1",
+        "channel": "release",
+        "platform": "darwin-x64",
+        "git_sha": "6aab43cd145e08332f2dedf6dbefc3e6fdd0a200",
+        "git_branch": "main",
+        "build_time": "2026-04-22T08:06:05.359751+00:00"
       }
     },
     "linux-x64": {
       "archive": {
         "filename": "moticlaw-linux-x64.tar.gz",
         "relative_path": "moticlaw-linux-x64.tar.gz",
-        "url": "https://github.com/mileson/moticlaw/releases/download/v0.1.0/moticlaw-linux-x64.tar.gz",
-        "sha256": "352b5a2c7638f3966586621fd20ad1ea302cd0a6c48e3780747af0b232b41fd7",
-        "size_bytes": 461861872
+        "url": "https://github.com/mileson/moticlaw/releases/download/v0.1.1/moticlaw-linux-x64.tar.gz",
+        "sha256": "6d9fed54c458ca40d65c6c6287443f5d3b6f095d745356ad31da554e206f0484",
+        "size_bytes": 97054173
       },
       "checksum": {
         "filename": "checksums.txt",
         "relative_path": "checksums.txt"
+      },
+      "build": {
+        "version": "0.1.1",
+        "channel": "release",
+        "platform": "linux-x64",
+        "git_sha": "6aab43cd145e08332f2dedf6dbefc3e6fdd0a200",
+        "git_branch": "main",
+        "build_time": "2026-04-22T08:08:20.852245+00:00"
       }
     },
     "windows-x64": {
       "archive": {
-        "filename": "moticlaw-windows-x64.tar.gz",
-        "relative_path": "moticlaw-windows-x64.tar.gz",
-        "url": "https://github.com/mileson/moticlaw/releases/download/v0.1.0/moticlaw-windows-x64.tar.gz",
-        "sha256": "3a2ed92a80f72cd9e15b0457013352d19ad89aae02ce91a618158a9ef734f46a",
-        "size_bytes": 439440451
+        "filename": "moticlaw-windows-x64.zip",
+        "relative_path": "moticlaw-windows-x64.zip",
+        "url": "https://github.com/mileson/moticlaw/releases/download/v0.1.1/moticlaw-windows-x64.zip",
+        "sha256": "900c1f82de279dc2d5ca1e023b8501c6177148432177a74c5b28e6515912eba2",
+        "size_bytes": 93559483
       },
       "checksum": {
         "filename": "checksums.txt",
         "relative_path": "checksums.txt"
+      },
+      "build": {
+        "version": "0.1.1",
+        "channel": "release",
+        "platform": "windows-x64",
+        "git_sha": "6aab43cd145e08332f2dedf6dbefc3e6fdd0a200",
+        "git_branch": "main",
+        "build_time": "2026-04-22T08:17:38.289444+00:00"
       }
     }
+  },
+  "source": {
+    "git_sha": "6aab43cd145e08332f2dedf6dbefc3e6fdd0a200",
+    "git_branch": "main"
   }
 }
