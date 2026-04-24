@@ -30,9 +30,6 @@ import type { MouseEvent } from "react";
 import type { Locale } from "@/lib/locale";
 
 type ThemeMode = "light" | "dark" | "system";
-type QuickStartTabKey = "one-liner" | "npm";
-type QuickStartPlatform = "macos" | "windows";
-type QuickStartManager = "npm" | "pnpm";
 
 const themeStorageKey = "moticlaw-theme";
 const localeStorageKey = "moticlaw-locale";
@@ -60,26 +57,11 @@ const copy = {
     quickStart: {
       eyebrow: "Quick Start",
       panelTitle: "Quick Start",
-      title: "Two ways to start the site.",
-      body: "A fast one-liner or the standard npm path. Keep it simple, keep it local.",
-      tabs: [
-        {
-          key: "one-liner",
-          label: "One-liner",
-          kicker: "Fastest path",
-          title: "Install and launch in one line.",
-          body: "Best when you just want the site running locally without thinking about the install flow.",
-          commands: ["curl -fsSL https://moticlaw.com/install.sh | bash"],
-        },
-        {
-          key: "npm",
-          label: "npm",
-          kicker: "Standard path",
-          title: "Use npm if that's your default.",
-          body: "Keeps the flow familiar for anyone used to the npm toolchain.",
-          commands: ["npm install -g moticlaw", "moticlaw status"],
-        },
-      ],
+      title: "macOS Apple Silicon preview.",
+      body: "The 0.1.2 rebuild is being released one platform at a time. Only the Apple Silicon macOS package is shown here for now.",
+      assetLabel: "macOS Apple Silicon",
+      commandNote: "v0.1.2 prerelease",
+      commands: ["curl -L -o moticlaw-darwin-arm64.tar.gz https://github.com/mileson/moticlaw/releases/download/v0.1.2/moticlaw-darwin-arm64.tar.gz"],
     },
     capabilities: {
       eyebrow: "Capabilities",
@@ -157,26 +139,11 @@ const copy = {
     quickStart: {
       eyebrow: "快速开始",
       panelTitle: "快速开始",
-      title: "两种启动方式。",
-      body: "保留最常见的两条路径：一行启动，或者用 npm 标准启动。",
-      tabs: [
-        {
-          key: "one-liner",
-          label: "一键安装",
-          kicker: "最快路径",
-          title: "一键安装即可安装并启动。",
-          body: "适合想最快把站点跑起来的时候，不需要额外思考安装顺序。",
-          commands: ["curl -fsSL https://moticlaw.com/install.sh | bash"],
-        },
-        {
-          key: "npm",
-          label: "npm",
-          kicker: "标准路径",
-          title: "如果你习惯 npm，就用 npm。",
-          body: "让本地启动流程保持熟悉，适合日常开发和切换环境。",
-          commands: ["npm install -g moticlaw", "moticlaw status"],
-        },
-      ],
+      title: "macOS Apple Silicon 预览包。",
+      body: "0.1.2 正在按平台逐步重建。当前官网只展示 Apple Silicon 版 macOS 安装包，其他平台完成后再恢复。",
+      assetLabel: "macOS Apple Silicon",
+      commandNote: "v0.1.2 预发布",
+      commands: ["curl -L -o moticlaw-darwin-arm64.tar.gz https://github.com/mileson/moticlaw/releases/download/v0.1.2/moticlaw-darwin-arm64.tar.gz"],
     },
     capabilities: {
       eyebrow: "能力",
@@ -273,9 +240,6 @@ function ThemeIcon({ theme }: { theme: Exclude<ThemeMode, "system"> }) {
 export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
   const [locale, setLocale] = useState<Locale>(initialLocale);
   const [theme, setTheme] = useState<ThemeMode>("system");
-  const [quickStartTab, setQuickStartTab] = useState<QuickStartTabKey>("one-liner");
-  const [quickStartPlatform, setQuickStartPlatform] = useState<QuickStartPlatform>("macos");
-  const [quickStartManager, setQuickStartManager] = useState<QuickStartManager>("pnpm");
   const [copyHintVisible, setCopyHintVisible] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [heroVideoLoaded, setHeroVideoLoaded] = useState(false);
@@ -290,16 +254,8 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
   const [isCompactViewport, setIsCompactViewport] = useState(false);
 
   const content = copy[locale];
-  const activeQuickStartTab = content.quickStart.tabs.find((tab) => tab.key === quickStartTab) ?? content.quickStart.tabs[0];
-  const quickStartCommands =
-    quickStartTab === "one-liner"
-      ? quickStartPlatform === "windows"
-        ? ['powershell -c "irm https://moticlaw.com/install.ps1 | iex"']
-        : ["curl -fsSL https://moticlaw.com/install.sh | bash"]
-      : quickStartManager === "npm"
-        ? ["npm install -g moticlaw", "moticlaw status"]
-        : ["pnpm add -g moticlaw", "moticlaw status"];
-  const quickStartNote = quickStartTab === "one-liner" ? (quickStartPlatform === "macos" ? "macOS & Linux" : "Windows") : quickStartManager;
+  const quickStartCommands = content.quickStart.commands;
+  const quickStartNote = content.quickStart.commandNote;
   const resolvedTheme = isMounted ? getResolvedTheme(theme) : "light";
   const themeLabel = useMemo(() => {
     return resolvedTheme === "dark" ? content.controls.dark : content.controls.light;
@@ -463,13 +419,6 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-  const handleQuickStartTabChange = (tab: QuickStartTabKey) => {
-    setQuickStartTab(tab);
-    if (tab === "npm") {
-      setQuickStartManager("npm");
-    }
-  };
 
   const renderContactIcon = (kind: "github" | "issues" | "releases") => {
     if (kind === "github") {
@@ -711,79 +660,19 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
                     <span className="quickstart-window-dot quickstart-window-dot-green" />
                   </div>
 
-                  <div className="quickstart-tabs" role="tablist" aria-label={content.quickStart.eyebrow}>
-                    {content.quickStart.tabs.map((tab) => {
-                      const active = tab.key === quickStartTab;
-
-                      return (
-                        <button
-                          key={tab.key}
-                          type="button"
-                          role="tab"
-                          aria-selected={active}
-                          className={`quickstart-tab ${active ? "quickstart-tab-active" : ""}`}
-                          onClick={() => handleQuickStartTabChange(tab.key)}
-                        >
-                          {tab.label}
-                        </button>
-                      );
-                    })}
+                  <div className="quickstart-tabs" aria-label={content.quickStart.eyebrow}>
+                    <span className="quickstart-tab quickstart-tab-active">
+                      {content.quickStart.assetLabel}
+                    </span>
                   </div>
                 </div>
 
-                <div className="quickstart-window-right">
-                  {quickStartTab === "one-liner" ? (
-                    <div className="quickstart-tabs quickstart-tabs-compact" role="tablist" aria-label="Platform">
-                      {[
-                        { key: "macos", label: "macOS & Linux" },
-                        { key: "windows", label: "Windows" },
-                      ].map((item) => {
-                        const active = item.key === quickStartPlatform;
-
-                        return (
-                          <button
-                            key={item.key}
-                            type="button"
-                            role="tab"
-                            aria-selected={active}
-                            className={`quickstart-tab ${active ? "quickstart-tab-active" : ""}`}
-                            onClick={() => setQuickStartPlatform(item.key as QuickStartPlatform)}
-                          >
-                            {item.label}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="quickstart-tabs quickstart-tabs-compact" role="tablist" aria-label="Package manager">
-                      {[
-                        { key: "npm", label: "npm" },
-                        { key: "pnpm", label: "pnpm" },
-                      ].map((item) => {
-                        const active = item.key === quickStartManager;
-
-                        return (
-                          <button
-                            key={item.key}
-                            type="button"
-                            role="tab"
-                            aria-selected={active}
-                            className={`quickstart-tab ${active ? "quickstart-tab-active" : ""}`}
-                            onClick={() => setQuickStartManager(item.key as QuickStartManager)}
-                          >
-                            {item.label}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
-
-                </div>
+                <div className="quickstart-window-right" />
               </div>
 
               <div className="quickstart-window-body">
                 <div className="quickstart-command-shell">
-                  <div className="quickstart-command-list" aria-label={activeQuickStartTab.label}>
+                  <div className="quickstart-command-list" aria-label={content.quickStart.assetLabel}>
                     <p className="quickstart-command-note"># {quickStartNote}</p>
                     <div className="quickstart-command-row">
                       <div className="quickstart-command-lines">
