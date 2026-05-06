@@ -92,8 +92,8 @@ const copy = {
   en: {
     nav: { start: "Install", features: "Product Features", capabilities: "Capabilities", footer: "Contact" },
     headerBadge: "Built for local deployment, agent workspaces, and operator teams",
-    heroTitle: "Install MotiClaw locally.\nRun your agent team now.",
-    heroBody: "Download the local-first agent control plane, set it up on your own device, and start managing OpenClaw and Hermes Agent workspaces without a long setup path.",
+    heroTitle: "One place for agents.",
+    heroBody: "An advanced multi-agent platform for building high-performing agent teams fast.",
     heroTag: "Supports OpenClaw · Hermes Agent",
     heroPlatformLabel: "Supported",
     primaryCta: "Download",
@@ -223,8 +223,8 @@ const copy = {
   zh: {
     nav: { start: "安装", features: "产品特色", capabilities: "能力", footer: "联系" },
     headerBadge: "面向本地部署、Agent 工区和运营团队",
-    heroTitle: "本地安装 MotiClaw，\n即刻运行 Agent 团队。",
-    heroBody: "下载本地优先的 Agent 控制面，安装到自己的设备上，就能开始管理 OpenClaw 和 Hermes Agent 工区。",
+    heroTitle: "Agent 管理，\n一个平台就够。",
+    heroBody: "先进的多 Agent 管理平台，让你即刻拥有高效的 Agent 团队。",
     heroTag: "支持 OpenClaw · Hermes Agent",
     heroPlatformLabel: "支持",
     primaryCta: "下载安装",
@@ -980,9 +980,6 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
           </a>
 
           <nav className="hidden items-center gap-10 text-sm text-[var(--muted)] md:flex lg:gap-12">
-            <a className="nav-link text-[var(--muted)]" href="#quick-start">
-              {content.nav.start}
-            </a>
             <a className="nav-link text-[var(--muted)]" href="#product-features">
               {content.nav.features}
             </a>
@@ -1334,7 +1331,7 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
         </section>
 
         <div className="content-stream">
-          <section id="quick-start" className="fade-up scroll-mt-24 pb-14" style={{ animationDelay: "220ms" }}>
+          <section id="quick-start" className="hidden fade-up scroll-mt-24 pb-14" style={{ animationDelay: "220ms" }}>
           <p className="quickstart-section-eyebrow mb-7 text-center">{content.quickStart.eyebrow}</p>
           <div className="quickstart-shell">
             <article className="quickstart-window">
