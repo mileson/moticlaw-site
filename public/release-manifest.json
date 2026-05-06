@@ -1,58 +1,27 @@
 {
-  "version": "0.1.1",
+  "version": "2026.5.7",
   "channel": "release",
-  "generated_at": "2026-04-22T09:04:02.238936+00:00",
+  "generated_at": "2026-04-22T07:33:48Z",
+  "release_url": "https://github.com/mileson/moticlaw/releases/tag/v2026.5.7",
   "artifacts": {
     "darwin-arm64": {
       "archive": {
-        "filename": "moticlaw-darwin-arm64.tar.gz",
-        "relative_path": "moticlaw-darwin-arm64.tar.gz",
-        "url": "https://github.com/mileson/moticlaw/releases/download/v0.1.1/moticlaw-darwin-arm64.tar.gz",
-        "sha256": "f6f85fd32360b1157689c5b7d8bccc7b0da266e1885f85ad01b8ce3d1a2cc94b",
-        "size_bytes": 77894447
-      },
-      "checksum": {
-        "filename": "checksums.txt",
-        "relative_path": "checksums.txt"
+        "filename": "MotiClaw-v0.1.0-macos-arm64.dmg",
+        "relative_path": "MotiClaw-v0.1.0-macos-arm64.dmg",
+        "url": "https://github.com/mileson/moticlaw/releases/download/v2026.5.7/MotiClaw-v0.1.0-macos-arm64.dmg",
+        "sha256": "ba67c1815a93fb8da469eafc43d62a1605cddfe8d9adc29e91c9c0a73f74106f",
+        "size_bytes": 217108029,
+        "content_type": "application/x-apple-diskimage"
       }
     },
     "darwin-x64": {
       "archive": {
-        "filename": "moticlaw-darwin-x64.tar.gz",
-        "relative_path": "moticlaw-darwin-x64.tar.gz",
-        "url": "https://github.com/mileson/moticlaw/releases/download/v0.1.1/moticlaw-darwin-x64.tar.gz",
-        "sha256": "f27458ed8a648609c10f5e56a67b0211769701f7bc598d4a08ede17e73a1fff6",
-        "size_bytes": 81486956
-      },
-      "checksum": {
-        "filename": "checksums.txt",
-        "relative_path": "checksums.txt"
-      }
-    },
-    "linux-x64": {
-      "archive": {
-        "filename": "moticlaw-linux-x64.tar.gz",
-        "relative_path": "moticlaw-linux-x64.tar.gz",
-        "url": "https://github.com/mileson/moticlaw/releases/download/v0.1.1/moticlaw-linux-x64.tar.gz",
-        "sha256": "e0c33d68d53b2de93aef863126d8f9aaa86503abb60e72bf7c2f0fe42762edff",
-        "size_bytes": 97043764
-      },
-      "checksum": {
-        "filename": "checksums.txt",
-        "relative_path": "checksums.txt"
-      }
-    },
-    "windows-x64": {
-      "archive": {
-        "filename": "moticlaw-windows-x64.zip",
-        "relative_path": "moticlaw-windows-x64.zip",
-        "url": "https://github.com/mileson/moticlaw/releases/download/v0.1.1/moticlaw-windows-x64.zip",
-        "sha256": "f577188ea0ae2e90040ff2fb669206ef60a6a2ac59926050bb1d0ffe64a44005",
-        "size_bytes": 93562183
-      },
-      "checksum": {
-        "filename": "checksums.txt",
-        "relative_path": "checksums.txt"
+        "filename": "MotiClaw-v0.1.0-macos-x64.dmg",
+        "relative_path": "MotiClaw-v0.1.0-macos-x64.dmg",
+        "url": "https://github.com/mileson/moticlaw/releases/download/v2026.5.7/MotiClaw-v0.1.0-macos-x64.dmg",
+        "sha256": "1ac63ff50a35589f2268193937c22b224853a35574fed3dfcd927504c778dec0",
+        "size_bytes": 224173566,
+        "content_type": "application/x-apple-diskimage"
       }
     }
   }

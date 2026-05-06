@@ -2,36 +2,61 @@
 
 import {
   Bug,
+  CaretDown,
   ChartBar,
   Check,
-  ClipboardText,
-  ChartLineUp,
   CopySimple,
   CursorClick,
   DownloadSimple,
   HardDrives,
   Globe,
+  Info,
   Kanban,
+  LinuxLogo,
   Moon,
   Package,
-  RocketLaunch,
+  ShieldCheck,
   Sliders,
   Sun,
-  Timer,
-  Sparkle,
-  UsersThree,
   Translate,
+  WindowsLogo,
   Wrench,
+  X,
 } from "@phosphor-icons/react";
 import { flushSync } from "react-dom";
 import { createPortal } from "react-dom";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { MouseEvent } from "react";
 import type { Locale } from "@/lib/locale";
+import {
+  fallbackReleaseManifest,
+  githubLatestReleaseUrl,
+  type PlatformGroup,
+  type PlatformKey,
+  type ReleaseArtifact,
+  type ReleaseManifest,
+} from "@/lib/release-manifest";
 
 type ThemeMode = "light" | "dark" | "system";
+type DetectedOs = "mac" | "win" | "linux" | "unknown";
+type DetectedArch = "arm64" | "x64" | "unknown";
+type ReleaseDownloadExtension = "dmg" | "exe" | "appimage" | "deb" | "rpm";
+type DetectedPlatform = {
+  os: DetectedOs;
+  arch: DetectedArch;
+};
+type UserAgentDataLike = {
+  platform?: string;
+  getHighEntropyValues?: (hints: Array<"architecture" | "bitness">) => Promise<{
+    architecture?: string;
+    bitness?: string;
+  }>;
+};
+type NavigatorWithUserAgentData = Navigator & {
+  userAgentData?: UserAgentDataLike;
+};
 /*
- * Hidden while v0.1.2 is a macOS Apple Silicon-only prerelease.
+ * Hidden while the public desktop release is macOS Apple Silicon-only.
  * Restore these together with the tab UI once all platform packages are ready.
  *
  * type QuickStartTabKey = "one-liner" | "npm";
@@ -43,16 +68,37 @@ const themeStorageKey = "moticlaw-theme";
 const localeStorageKey = "moticlaw-locale";
 const localeMenuOffset = 4;
 
+const platformGroups: PlatformGroup[] = ["macos", "windows", "linux"];
+const platformOptions: Array<{ key: PlatformKey; group: PlatformGroup }> = [
+  { key: "darwin-x64", group: "macos" },
+  { key: "windows-x64", group: "windows" },
+  { key: "windows-arm64", group: "windows" },
+  { key: "linux-deb-x64", group: "linux" },
+  { key: "linux-deb-arm64", group: "linux" },
+  { key: "linux-appimage-x64", group: "linux" },
+  { key: "linux-appimage-arm64", group: "linux" },
+  { key: "linux-rpm-x64", group: "linux" },
+];
+const recommendedPlatformOptions: Array<{ key: PlatformKey; group: PlatformGroup }> = [
+  { key: "darwin-arm64", group: "macos" },
+  ...platformOptions,
+];
+const pendingPlatformGroups = new Set<PlatformGroup>(["windows", "linux"]);
+const downloadablePlatformOptions = recommendedPlatformOptions.filter((option) => !pendingPlatformGroups.has(option.group));
+const fallbackPlatformKey: PlatformKey = "darwin-arm64";
+const defaultDetectedPlatform: DetectedPlatform = { os: "mac", arch: "arm64" };
+
 const copy = {
   en: {
-    nav: { start: "Quick Start", features: "Product Features", capabilities: "Capabilities", footer: "Contact" },
+    nav: { start: "Install", features: "Product Features", capabilities: "Capabilities", footer: "Contact" },
     headerBadge: "Built for local deployment, agent workspaces, and operator teams",
-    heroTitle: "One place for agents.",
-    heroBody: "An advanced multi-agent platform for building high-performing agent teams fast.",
+    heroTitle: "Install MotiClaw locally.\nRun your agent team now.",
+    heroBody: "Download the local-first agent control plane, set it up on your own device, and start managing OpenClaw and Hermes Agent workspaces without a long setup path.",
     heroTag: "Supports OpenClaw · Hermes Agent",
     heroPlatformLabel: "Supported",
-    primaryCta: "Quick start",
+    primaryCta: "Download",
     secondaryCta: "See capabilities",
+    releaseBadge: "Latest macOS installer available",
     statsSectionTitle: "Product Features",
     stats: [
       { title: "Local-first", body: "Your data and agents run on your own device — no third-party servers involved.", icon: HardDrives },
@@ -65,11 +111,11 @@ const copy = {
     quickStart: {
       eyebrow: "Quick Start",
       panelTitle: "Quick Start",
-      title: "macOS Apple Silicon preview.",
-      body: "The 0.1.2 rebuild is being released one platform at a time. Only the Apple Silicon macOS package is shown here for now.",
+      title: "macOS Apple Silicon installer.",
+      body: "The download points to the latest GitHub Release. Use the button for the installer, or run the command to save the package locally.",
       assetLabel: "macOS Apple Silicon",
-      commandNote: "v0.1.2 prerelease",
-      commands: ["curl -L -o moticlaw-darwin-arm64.tar.gz https://github.com/mileson/moticlaw/releases/download/v0.1.2/moticlaw-darwin-arm64.tar.gz"],
+      commandNote: "Latest macOS package",
+      commands: ["curl -L -o MotiClaw.dmg https://github.com/mileson/moticlaw/releases/latest"],
       /*
        * Hidden until the remaining release packages are rebuilt:
        *
@@ -147,16 +193,43 @@ const copy = {
     footerNote: "One scroll. One story. One control plane.",
     controls: { language: "Language", theme: "Theme", light: "Light", dark: "Dark", switchTo: "Switch to" },
     copied: "Copied",
+    download: {
+      title: "Download MotiClaw",
+      released: "Released on",
+      detected: "Detected device",
+      recommended: "Recommended download",
+      installNote: "On first launch, go to System Settings -> Privacy & Security and allow the app to open.",
+      unavailable: "Coming soon",
+      otherPlatforms: "Other platforms",
+      githubRelease: "View GitHub Release",
+      copyCommand: "Copy command",
+      close: "Close download dialog",
+      size: "Size",
+      groups: { macos: "macOS", windows: "Windows", linux: "Linux" },
+      platforms: {
+        "darwin-arm64": "macOS Apple Silicon",
+        "darwin-x64": "macOS (Intel)",
+        "windows-x64": "Windows (x64)",
+        "windows-arm64": "Windows (ARM64)",
+        "linux-deb-x64": "Linux .deb (x64)",
+        "linux-deb-arm64": "Linux .deb (ARM64)",
+        "linux-appimage-x64": "Linux AppImage (x64)",
+        "linux-appimage-arm64": "Linux AppImage (ARM64)",
+        "linux-rpm-x64": "Linux .rpm (x64)",
+      },
+      unknownDevice: "Unknown",
+    },
   },
   zh: {
-    nav: { start: "快速开始", features: "产品特色", capabilities: "能力", footer: "联系" },
+    nav: { start: "安装", features: "产品特色", capabilities: "能力", footer: "联系" },
     headerBadge: "面向本地部署、Agent 工区和运营团队",
-    heroTitle: "Agent 管理，\n一个平台就够。",
-    heroBody: "先进的多 Agent 管理平台，让你即刻拥有高效 Agent 团队。",
+    heroTitle: "本地安装 MotiClaw，\n即刻运行 Agent 团队。",
+    heroBody: "下载本地优先的 Agent 控制面，安装到自己的设备上，就能开始管理 OpenClaw 和 Hermes Agent 工区。",
     heroTag: "支持 OpenClaw · Hermes Agent",
     heroPlatformLabel: "支持",
-    primaryCta: "快速开始",
+    primaryCta: "下载安装",
     secondaryCta: "查看能力",
+    releaseBadge: "最新版 macOS 安装包已开放",
     statsSectionTitle: "产品特色",
     stats: [
       { title: "本地优先", body: "数据和 Agent 都运行在你自己的设备上，不经过任何第三方服务器。", icon: HardDrives },
@@ -169,11 +242,11 @@ const copy = {
     quickStart: {
       eyebrow: "快速开始",
       panelTitle: "快速开始",
-      title: "macOS Apple Silicon 预览包。",
-      body: "0.1.2 正在按平台逐步重建。当前官网只展示 Apple Silicon 版 macOS 安装包，其他平台完成后再恢复。",
+      title: "macOS Apple Silicon 安装包。",
+      body: "下载入口会指向 GitHub Release 的最新版本。你可以点击按钮下载安装包，也可以用命令保存到本地。",
       assetLabel: "macOS Apple Silicon",
-      commandNote: "v0.1.2 预发布",
-      commands: ["curl -L -o moticlaw-darwin-arm64.tar.gz https://github.com/mileson/moticlaw/releases/download/v0.1.2/moticlaw-darwin-arm64.tar.gz"],
+      commandNote: "最新 macOS 安装包",
+      commands: ["curl -L -o MotiClaw.dmg https://github.com/mileson/moticlaw/releases/latest"],
       /*
        * 其他平台补齐前先隐藏：
        *
@@ -251,6 +324,32 @@ const copy = {
     footerNote: "",
     controls: { language: "语言", theme: "主题", light: "浅色", dark: "深色", switchTo: "切换为" },
     copied: "已复制",
+    download: {
+      title: "下载 MotiClaw",
+      released: "发布于",
+      detected: "检测到你的设备",
+      recommended: "推荐下载",
+      installNote: "首次启动时，请前往“系统设置”→“隐私与安全性”，允许打开应用。",
+      unavailable: "即将开放",
+      otherPlatforms: "其它平台",
+      githubRelease: "查看 GitHub Release",
+      copyCommand: "复制命令",
+      close: "关闭下载弹窗",
+      size: "大小",
+      groups: { macos: "macOS", windows: "Windows", linux: "Linux" },
+      platforms: {
+        "darwin-arm64": "macOS Apple Silicon",
+        "darwin-x64": "macOS (Intel)",
+        "windows-x64": "Windows (x64)",
+        "windows-arm64": "Windows (ARM64)",
+        "linux-deb-x64": "Linux .deb (x64)",
+        "linux-deb-arm64": "Linux .deb (ARM64)",
+        "linux-appimage-x64": "Linux AppImage (x64)",
+        "linux-appimage-arm64": "Linux AppImage (ARM64)",
+        "linux-rpm-x64": "Linux .rpm (x64)",
+      },
+      unknownDevice: "未知设备",
+    },
   },
 } as const;
 
@@ -277,11 +376,253 @@ function applyTheme(theme: ThemeMode) {
   setThemeClass(theme);
 }
 
+function formatReleaseDate(value: string | undefined, locale: Locale) {
+  if (!value) return "";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+
+  return new Intl.DateTimeFormat(locale === "zh" ? "zh-CN" : "en-US", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date);
+}
+
+function formatBytes(value: number | undefined) {
+  if (!value) return "";
+  return `${(value / 1024 / 1024).toFixed(1)} MB`;
+}
+
+async function fetchReleaseManifest(signal: AbortSignal): Promise<ReleaseManifest> {
+  const response = await fetch("/api/releases/latest", {
+    cache: "no-store",
+    signal,
+  });
+
+  if (response.ok) {
+    const manifest = (await response.json()) as ReleaseManifest;
+    if (Object.keys(manifest.artifacts).length > 0) return manifest;
+  }
+
+  return fallbackReleaseManifest;
+}
+
+function isAbortError(error: unknown) {
+  return error instanceof DOMException && error.name === "AbortError";
+}
+
+function detectOperatingSystem(userAgent: string, platform: string, userAgentDataPlatform: string): DetectedOs {
+  const combinedPlatform = `${userAgentDataPlatform} ${platform}`.toLowerCase();
+
+  if (userAgent.includes("mac") || combinedPlatform.includes("mac")) return "mac";
+  if (userAgent.includes("win") || combinedPlatform.includes("win")) return "win";
+  if (userAgent.includes("linux") || combinedPlatform.includes("linux")) return "linux";
+  return "unknown";
+}
+
+function normalizeArchitecture(architecture: string | undefined, bitness: string | undefined): DetectedArch {
+  const arch = (architecture ?? "").toLowerCase();
+  const bits = (bitness ?? "").toLowerCase();
+
+  if (arch === "arm") return bits === "32" ? "unknown" : "arm64";
+  if (arch === "x86") return bits === "32" ? "unknown" : "x64";
+  if (arch === "arm64" || arch === "aarch64") return "arm64";
+  if (arch === "x64" || arch === "x86_64" || arch === "amd64") return "x64";
+  return "unknown";
+}
+
+function detectArchitectureFromUserAgent(userAgent: string, platform: string): DetectedArch {
+  const combined = `${userAgent} ${platform}`.toLowerCase();
+
+  if (/(^|[\s_/-])(arm64|aarch64|armv8)([\s_/-]|$)|\barm\b/.test(combined)) return "arm64";
+  if (/\b(x86_64|amd64|x64|wow64|win64)\b/.test(combined) || combined.includes("intel")) return "x64";
+  return "unknown";
+}
+
+function detectMacArchitectureFromWebGl(): DetectedArch {
+  if (typeof document === "undefined") return "unknown";
+
+  try {
+    const canvas = document.createElement("canvas");
+    const context = (canvas.getContext("webgl") ?? canvas.getContext("experimental-webgl")) as WebGLRenderingContext | null;
+    const isWebGlContext = typeof WebGLRenderingContext === "undefined" || context instanceof WebGLRenderingContext;
+    if (!context || !isWebGlContext) return "unknown";
+
+    const debugInfo = context.getExtension("WEBGL_debug_renderer_info");
+    if (!debugInfo) return "unknown";
+
+    const renderer = context.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+    if (typeof renderer !== "string") return "unknown";
+
+    const normalizedRenderer = renderer.toLowerCase();
+    if (normalizedRenderer.includes("apple")) return "arm64";
+    if (normalizedRenderer.includes("intel") || normalizedRenderer.includes("amd") || normalizedRenderer.includes("radeon")) return "x64";
+  } catch {
+    return "unknown";
+  }
+
+  return "unknown";
+}
+
+async function detectPlatform(): Promise<DetectedPlatform> {
+  if (typeof window === "undefined") return defaultDetectedPlatform;
+
+  const navigatorWithUaData = window.navigator as NavigatorWithUserAgentData;
+  const userAgent = navigatorWithUaData.userAgent.toLowerCase();
+  const platform = (navigatorWithUaData.platform || "").toLowerCase();
+  const userAgentDataPlatform = (navigatorWithUaData.userAgentData?.platform || "").toLowerCase();
+  const os = detectOperatingSystem(userAgent, platform, userAgentDataPlatform);
+
+  if (os === "unknown") return { os, arch: "unknown" };
+
+  let arch: DetectedArch = "unknown";
+  if (typeof navigatorWithUaData.userAgentData?.getHighEntropyValues === "function") {
+    try {
+      const values = await navigatorWithUaData.userAgentData.getHighEntropyValues(["architecture", "bitness"]);
+      arch = normalizeArchitecture(values.architecture, values.bitness);
+    } catch {
+      arch = "unknown";
+    }
+  }
+
+  if (arch === "unknown" && os === "mac") {
+    arch = detectMacArchitectureFromWebGl();
+  }
+
+  if (arch === "unknown") {
+    arch = detectArchitectureFromUserAgent(userAgent, platform);
+  }
+
+  return { os, arch };
+}
+
+function downloadExtensionsForOs(os: DetectedOs): ReleaseDownloadExtension[] {
+  if (os === "mac") return ["dmg"];
+  if (os === "win") return ["exe"];
+  if (os === "linux") return ["appimage", "deb", "rpm"];
+  return [];
+}
+
+function groupForDetectedOs(os: DetectedOs): PlatformGroup | null {
+  if (os === "mac") return "macos";
+  if (os === "win") return "windows";
+  if (os === "linux") return "linux";
+  return null;
+}
+
+function architectureFallbacks(arch: DetectedArch): Array<Exclude<DetectedArch, "unknown">> {
+  if (arch === "unknown") return ["x64", "arm64"];
+  return arch === "x64" ? ["x64", "arm64"] : ["arm64", "x64"];
+}
+
+function platformKeyForDetectedDownload(os: DetectedOs, arch: Exclude<DetectedArch, "unknown">, extension: ReleaseDownloadExtension): PlatformKey | null {
+  if (os === "mac" && extension === "dmg") return arch === "arm64" ? "darwin-arm64" : "darwin-x64";
+  if (os === "win" && extension === "exe") return arch === "arm64" ? "windows-arm64" : "windows-x64";
+  if (os === "linux" && extension === "deb") return arch === "arm64" ? "linux-deb-arm64" : "linux-deb-x64";
+  if (os === "linux" && extension === "appimage") return arch === "arm64" ? "linux-appimage-arm64" : "linux-appimage-x64";
+  if (os === "linux" && extension === "rpm" && arch === "x64") return "linux-rpm-x64";
+  return null;
+}
+
+function candidateDownloadsForDetectedPlatform(detectedPlatform: DetectedPlatform) {
+  const candidates: Array<{ key: PlatformKey; extension: ReleaseDownloadExtension }> = [];
+
+  for (const extension of downloadExtensionsForOs(detectedPlatform.os)) {
+    for (const arch of architectureFallbacks(detectedPlatform.arch)) {
+      const key = platformKeyForDetectedDownload(detectedPlatform.os, arch, extension);
+      if (key) candidates.push({ key, extension });
+    }
+  }
+
+  return candidates;
+}
+
+function archiveExtension(archive: ReleaseArtifact["archive"] | undefined): ReleaseDownloadExtension | null {
+  const filename = archive?.filename?.toLowerCase() ?? "";
+
+  if (filename.endsWith(".dmg")) return "dmg";
+  if (filename.endsWith(".exe")) return "exe";
+  if (filename.includes("appimage")) return "appimage";
+  if (filename.endsWith(".deb")) return "deb";
+  if (filename.endsWith(".rpm")) return "rpm";
+  return null;
+}
+
+function getDetectedPlatformLabel(detectedPlatform: DetectedPlatform, downloadCopy: (typeof copy)[Locale]["download"]) {
+  const group = groupForDetectedOs(detectedPlatform.os);
+  if (!group) return downloadCopy.unknownDevice;
+  if (detectedPlatform.arch === "unknown") return downloadCopy.groups[group];
+
+  const firstCandidate = candidateDownloadsForDetectedPlatform(detectedPlatform)[0];
+  if (firstCandidate && firstCandidate.key in downloadCopy.platforms) {
+    return downloadCopy.platforms[firstCandidate.key];
+  }
+
+  return detectedPlatform.arch === "arm64" ? `${downloadCopy.groups[group]} (ARM64)` : `${downloadCopy.groups[group]} (x64)`;
+}
+
+function getAvailablePlatformKey(manifest: ReleaseManifest, detectedPlatform: DetectedPlatform) {
+  const downloadableKeys = new Set(downloadablePlatformOptions.map((option) => option.key));
+
+  for (const candidate of candidateDownloadsForDetectedPlatform(detectedPlatform)) {
+    const archive = manifest.artifacts[candidate.key]?.archive;
+    if (downloadableKeys.has(candidate.key) && archive?.url && archiveExtension(archive) === candidate.extension) {
+      return candidate.key;
+    }
+  }
+
+  const detectedGroup = groupForDetectedOs(detectedPlatform.os);
+  if (detectedGroup) {
+    const extensions = downloadExtensionsForOs(detectedPlatform.os);
+
+    for (const extension of extensions) {
+      const fallbackOption = downloadablePlatformOptions.find((option) => {
+        const archive = manifest.artifacts[option.key]?.archive;
+        return option.group === detectedGroup && archive?.url && archiveExtension(archive) === extension;
+      });
+
+      if (fallbackOption) return fallbackOption.key;
+    }
+  }
+
+  return downloadablePlatformOptions.find((option) => manifest.artifacts[option.key]?.archive?.url)?.key ?? fallbackPlatformKey;
+}
+
 function BrandIcon() {
   return (
     <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg sm:h-[46px] sm:w-[46px]">
       <img src="/icon.svg?v=3" alt="" aria-hidden="true" className="block h-full w-full object-contain" />
     </span>
+  );
+}
+
+function AppleOutlineIcon({ size = 20 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 224 256"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path
+        d="M159.7 28c-4.7 13.6-15.5 25.9-28.1 31.7-7.1 3.3-14.4 4.7-21.4 4.1 2.7-14.1 11.8-27.4 24.2-35.1C141.9 24 151.4 21.2 159.7 28Z"
+        stroke="currentColor"
+        strokeWidth="16"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M197.9 94.5c-15.1 8.4-23.7 21.9-23 36.7.8 17.2 11.9 31.1 29.1 38.5-3.8 12.9-10.4 25.5-18.7 35.9-10.6 13.2-20 22.4-32.5 22.4-7 0-12.5-2.1-18.1-4.3-6-2.3-12.1-4.7-20.5-4.7-8.7 0-15.3 2.5-21.7 4.9-5.9 2.2-11.5 4.1-18 4.1-11.8 0-21.8-10-32.7-24.6C25.3 181.2 16 148.2 23.6 119.7c6.1-22.8 22.9-37.8 43.1-38.1 8.2-.1 15.5 2.7 21.7 5.1 5.6 2.2 10.4 4.1 14.7 4.1 3.8 0 8.8-1.9 14.7-4.1 7.5-2.8 16.7-6.2 27.6-5.6 18.9.9 35.5 10.4 52.5 13.4Z"
+        stroke="currentColor"
+        strokeWidth="16"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }
 
@@ -300,6 +641,15 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
    * const [quickStartManager, setQuickStartManager] = useState<QuickStartManager>("pnpm");
    */
   const [copyHintVisible, setCopyHintVisible] = useState(false);
+  const [downloadModalOpen, setDownloadModalOpen] = useState(false);
+  const [otherPlatformsOpen, setOtherPlatformsOpen] = useState(true);
+  const [platformGroupOpen, setPlatformGroupOpen] = useState<Record<PlatformGroup, boolean>>({
+    macos: true,
+    windows: false,
+    linux: false,
+  });
+  const [releaseManifest, setReleaseManifest] = useState<ReleaseManifest>(fallbackReleaseManifest);
+  const [detectedPlatform, setDetectedPlatform] = useState<DetectedPlatform>(defaultDetectedPlatform);
   const [isMounted, setIsMounted] = useState(false);
   const [heroVideoLoaded, setHeroVideoLoaded] = useState(false);
   const readyRef = useRef(false);
@@ -315,6 +665,21 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
   const content = copy[locale];
   const quickStartCommands = content.quickStart.commands;
   const quickStartNote = content.quickStart.commandNote;
+  const detectedPlatformLabel = getDetectedPlatformLabel(detectedPlatform, content.download);
+  const recommendedPlatformKey = getAvailablePlatformKey(releaseManifest, detectedPlatform);
+  const recommendedArtifact = releaseManifest.artifacts[recommendedPlatformKey]?.archive;
+  const recommendedPlatformLabel = content.download.platforms[recommendedPlatformKey];
+  const recommendedPlatformGroup = recommendedPlatformOptions.find((option) => option.key === recommendedPlatformKey)?.group ?? "macos";
+  const releaseDate = formatReleaseDate(releaseManifest.generated_at, locale);
+  const releaseUrl = releaseManifest.release_url ?? githubLatestReleaseUrl;
+  const releaseBadgeText =
+    locale === "zh"
+      ? `v${releaseManifest.version} · ${recommendedPlatformLabel} 已开放`
+      : `v${releaseManifest.version} · ${recommendedPlatformLabel} available`;
+  const quickStartDisplayCommands = recommendedArtifact?.url
+    ? [`curl -L -o ${recommendedArtifact.filename ?? "MotiClaw.dmg"} ${recommendedArtifact.url}`]
+    : quickStartCommands;
+  const quickStartNoteText = `v${releaseManifest.version} · ${quickStartNote}`;
   /*
    * Restore with the multi-entry quick start tabs:
    *
@@ -335,6 +700,10 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
   }, [content.controls.dark, content.controls.light, resolvedTheme]);
 
   const closeLocaleMenu = () => setLocaleMenuOpen(false);
+  const openDownloadModal = () => {
+    closeLocaleMenu();
+    setDownloadModalOpen(true);
+  };
   const updateLocaleMenuRect = () => {
     const button = localeButtonRef.current;
     if (!button) return;
@@ -434,6 +803,18 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
   }, []);
 
   useEffect(() => {
+    let active = true;
+
+    detectPlatform().then((platform) => {
+      if (active) setDetectedPlatform(platform);
+    });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
     if (!readyRef.current) return;
     window.localStorage.setItem(localeStorageKey, locale);
     document.documentElement.lang = locale === "zh" ? "zh-CN" : "en";
@@ -493,6 +874,49 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    const controller = new AbortController();
+
+    fetchReleaseManifest(controller.signal)
+      .then((manifest) => setReleaseManifest(manifest))
+      .catch((error: unknown) => {
+        if (!isAbortError(error)) setReleaseManifest(fallbackReleaseManifest);
+      });
+
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    if (!downloadModalOpen) return;
+
+    const controller = new AbortController();
+
+    fetchReleaseManifest(controller.signal)
+      .then((manifest) => setReleaseManifest(manifest))
+      .catch((error: unknown) => {
+        if (!isAbortError(error)) setReleaseManifest(fallbackReleaseManifest);
+      });
+
+    return () => controller.abort();
+  }, [downloadModalOpen]);
+
+  useEffect(() => {
+    if (!downloadModalOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setDownloadModalOpen(false);
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [downloadModalOpen]);
+
   /*
    * Restore with the package-manager tab:
    *
@@ -521,6 +945,16 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
     }
 
     return <DownloadSimple size={28} weight="regular" aria-hidden="true" />;
+  };
+
+  const renderPlatformIcon = (group: PlatformGroup, size = 20) => {
+    if (group === "macos") return <AppleOutlineIcon size={size} />;
+    if (group === "windows") return <WindowsLogo size={size} weight="regular" aria-hidden="true" />;
+    return <LinuxLogo size={size} weight="regular" aria-hidden="true" />;
+  };
+
+  const togglePlatformGroup = (group: PlatformGroup) => {
+    setPlatformGroupOpen((current) => ({ ...current, [group]: !current[group] }));
   };
 
   return (
@@ -588,13 +1022,14 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
               <Translate size={22} weight="regular" aria-hidden="true" />
             </button>
 
-            <a
-              href="#quick-start"
+            <button
+              type="button"
+              onClick={openDownloadModal}
               className="header-desktop-cta btn-base btn-primary ml-2 min-w-[11.375rem] justify-center"
             >
-              <RocketLaunch size={16} weight="regular" aria-hidden="true" />
+              <DownloadSimple size={16} weight="regular" aria-hidden="true" />
               {content.primaryCta}
-            </a>
+            </button>
           </div>
         </header>
       </div>
@@ -662,6 +1097,168 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
             )
           : null}
 
+        {downloadModalOpen && typeof document !== "undefined"
+          ? createPortal(
+              <div
+                className="download-modal-backdrop"
+                role="presentation"
+                onClick={() => setDownloadModalOpen(false)}
+              >
+                <section
+                  className="download-modal"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="download-modal-title"
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  <button
+                    type="button"
+                    className="download-modal-close"
+                    aria-label={content.download.close}
+                    title={content.download.close}
+                    onClick={() => setDownloadModalOpen(false)}
+                  >
+                    <X size={18} weight="bold" aria-hidden="true" />
+                  </button>
+
+                  <div className="download-modal-header">
+                    <p className="download-modal-eyebrow">{content.download.recommended}</p>
+                    <h2 id="download-modal-title" className="download-modal-title">
+                      {content.download.title} <span>v{releaseManifest.version}</span>
+                    </h2>
+                    {releaseDate ? (
+                      <p className="download-modal-subtitle">
+                        {content.download.released} {releaseDate}
+                      </p>
+                    ) : null}
+                  </div>
+
+                  <div className="download-detected-row">
+                    <ShieldCheck size={18} weight="regular" aria-hidden="true" />
+                    <span>{content.download.detected}:</span>
+                    <strong>{detectedPlatformLabel}</strong>
+                  </div>
+
+                  <a
+                    href={recommendedArtifact?.url ?? releaseUrl}
+                    className="download-recommended-card"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <span className="download-package-icon">
+                      {renderPlatformIcon(recommendedPlatformGroup, 26)}
+                    </span>
+                    <span className="download-package-content">
+                      <span className="download-package-title">{recommendedPlatformLabel}</span>
+                      <span className="download-package-file">{recommendedArtifact?.filename ?? "GitHub Release"}</span>
+                      <span className="download-package-meta">
+                        {formatBytes(recommendedArtifact?.size_bytes) ? `${content.download.size} ${formatBytes(recommendedArtifact?.size_bytes)}` : content.download.githubRelease}
+                      </span>
+                    </span>
+                    <span className="download-package-action" aria-hidden="true">
+                      <DownloadSimple size={21} weight="bold" />
+                    </span>
+                    <span className="download-package-note">
+                      <Info size={15} weight="regular" aria-hidden="true" />
+                      <span>{content.download.installNote}</span>
+                    </span>
+                  </a>
+
+                  <div className="download-platform-section">
+                    <button
+                      type="button"
+                      className="download-platform-toggle"
+                      aria-expanded={otherPlatformsOpen}
+                      onClick={() => setOtherPlatformsOpen((open) => !open)}
+                    >
+                      <span>{content.download.otherPlatforms}</span>
+                      <CaretDown
+                        size={16}
+                        weight="bold"
+                        aria-hidden="true"
+                        className={otherPlatformsOpen ? "download-platform-caret-open" : ""}
+                      />
+                    </button>
+
+                    {otherPlatformsOpen ? (
+                      <div className="download-platform-groups">
+                        {platformGroups.map((group) => {
+                          const groupOptions = platformOptions.filter((option) => option.group === group);
+                          const groupPending = pendingPlatformGroups.has(group);
+                          const groupExpanded = platformGroupOpen[group];
+
+                          return (
+                            <div key={group} className="download-platform-group">
+                              {groupPending ? (
+                                <div className="download-platform-group-title download-platform-group-title-static">
+                                  <span className="download-platform-group-name">
+                                    {renderPlatformIcon(group, 16)}
+                                    {content.download.groups[group]}
+                                  </span>
+                                  <span className="download-platform-group-meta">
+                                    <span className="download-platform-status">{content.download.unavailable}</span>
+                                  </span>
+                                </div>
+                              ) : (
+                                <button
+                                  type="button"
+                                  className="download-platform-group-title"
+                                  aria-expanded={groupExpanded}
+                                  onClick={() => togglePlatformGroup(group)}
+                                >
+                                  <span className="download-platform-group-name">
+                                    {renderPlatformIcon(group, 16)}
+                                    {content.download.groups[group]}
+                                  </span>
+                                  <span className="download-platform-group-meta">
+                                    <CaretDown
+                                      size={14}
+                                      weight="bold"
+                                      aria-hidden="true"
+                                      className={groupExpanded ? "download-platform-caret-open" : ""}
+                                    />
+                                  </span>
+                                </button>
+                              )}
+
+                              {!groupPending && groupExpanded ? (
+                                <div className="download-platform-list">
+                                  {groupOptions.map((option) => {
+                                    const artifact = releaseManifest.artifacts[option.key]?.archive;
+                                    const available = Boolean(artifact?.url);
+
+                                    return available ? (
+                                      <a
+                                        key={option.key}
+                                        href={artifact?.url}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="download-platform-row download-platform-row-available"
+                                      >
+                                        <span>{content.download.platforms[option.key]}</span>
+                                        <DownloadSimple size={15} weight="bold" aria-hidden="true" />
+                                      </a>
+                                    ) : (
+                                      <span key={option.key} className="download-platform-row download-platform-row-disabled">
+                                        <span>{content.download.platforms[option.key]}</span>
+                                        <span>{content.download.unavailable}</span>
+                                      </span>
+                                    );
+                                  })}
+                                </div>
+                              ) : null}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : null}
+                  </div>
+                </section>
+              </div>,
+              document.body,
+            )
+          : null}
+
         <section id="top" className="hero-section grid flex-1 gap-8 pb-10 pt-4 sm:gap-12 sm:pb-16 sm:pt-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-center lg:pb-24 lg:pt-16">
           <div className="hero-copy fade-up space-y-6 lg:pl-8 xl:pl-12" style={{ animationDelay: "60ms" }}>
             <div className="space-y-5">
@@ -669,6 +1266,10 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
                 {content.heroTitle}
               </h1>
               <p className="hero-subtitle max-w-2xl text-base leading-7 text-[var(--muted)] sm:text-xl sm:leading-8">{content.heroBody}</p>
+              <div className="hero-release-badge">
+                <DownloadSimple size={15} weight="bold" aria-hidden="true" />
+                <span>{releaseBadgeText}</span>
+              </div>
               <div className="hero-actions flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-start sm:gap-5">
                 <div className="hero-platform-strip inline-flex items-center gap-2 rounded-full py-2">
                   <span className="hero-platform-strip-label text-[0.8rem] font-medium tracking-[0.08em]">{content.heroPlatformLabel}</span>
@@ -693,13 +1294,14 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
                     <img src="/brand/hermes-agent.png" alt="" aria-hidden="true" className="hero-platform-icon hero-platform-icon-rounded" />
                   </a>
                 </div>
-                <a
-                  href="#quick-start"
+                <button
+                  type="button"
+                  onClick={openDownloadModal}
                   className="hero-primary-cta btn-base btn-primary shrink-0 min-w-[11.375rem] justify-center px-7 py-4"
                 >
-                  <RocketLaunch size={16} weight="regular" aria-hidden="true" />
+                  <DownloadSimple size={16} weight="regular" aria-hidden="true" />
                   {content.primaryCta}
-                </a>
+                </button>
               </div>
             </div>
 
@@ -833,10 +1435,10 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
                     {/*
                       Restore aria-label={activeQuickStartTab.label} when activeQuickStartTab comes back.
                     */}
-                    <p className="quickstart-command-note"># {quickStartNote}</p>
+                    <p className="quickstart-command-note"># {quickStartNoteText}</p>
                     <div className="quickstart-command-row">
                       <div className="quickstart-command-lines">
-                        {quickStartCommands.map((command) => (
+                        {quickStartDisplayCommands.map((command) => (
                           <div key={command} className="quickstart-command-line">
                             <span className="quickstart-command-prompt">$</span>
                             <span className="quickstart-command-text">{command}</span>
@@ -851,7 +1453,7 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
                           aria-label="Copy command"
                           title="Copy"
                           onClick={() => {
-                            void navigator.clipboard.writeText(quickStartCommands.join("\n"));
+                            void navigator.clipboard.writeText(quickStartDisplayCommands.join("\n"));
                             setCopyHintVisible(true);
                             window.setTimeout(() => setCopyHintVisible(false), 1200);
                           }}
