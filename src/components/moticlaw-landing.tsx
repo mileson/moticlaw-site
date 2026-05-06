@@ -1501,14 +1501,14 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
 
         <section id="footer" className="fade-up scroll-mt-24 py-16" style={{ animationDelay: "340ms" }}>
           <p className="section-eyebrow-lg mb-7 text-center">{content.contact.eyebrow}</p>
-          <div className="contact-grid mx-auto grid max-w-[50rem] gap-3 justify-items-center md:grid-cols-2 lg:grid-cols-3">
+          <div className="contact-grid mx-auto flex max-w-[50rem] flex-col flex-wrap items-center justify-center gap-4 sm:flex-row sm:gap-8 lg:gap-10">
             {content.contact.links.map((item) => (
               <a
                 key={item.title}
                 href={item.href}
                 target="_blank"
                 rel="noreferrer"
-                className="contact-link-card group relative grid aspect-square w-full max-w-[11.4rem] place-items-center overflow-hidden rounded-[1.35rem] border border-[rgba(22,29,44,0.08)] bg-[rgba(255,255,255,0.72)] px-3 py-3 text-center shadow-[0_10px_28px_rgba(23,20,17,0.07)] backdrop-blur-[10px] transition duration-200 hover:-translate-y-1 hover:border-[rgba(228,145,92,0.3)] hover:shadow-[0_16px_36px_rgba(23,20,17,0.11)]"
+                className="contact-link-card group relative grid aspect-square w-[11.4rem] max-w-full place-items-center overflow-hidden rounded-[1.35rem] border border-[rgba(22,29,44,0.08)] bg-[rgba(255,255,255,0.72)] px-3 py-3 text-center shadow-[0_10px_28px_rgba(23,20,17,0.07)] backdrop-blur-[10px] transition duration-200 hover:-translate-y-1 hover:border-[rgba(228,145,92,0.3)] hover:shadow-[0_16px_36px_rgba(23,20,17,0.11)]"
               >
                 <span
                   aria-hidden="true"
@@ -1516,7 +1516,7 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
                 />
                 <span className="relative flex h-full w-full flex-col items-center justify-center">
                   <span
-                    className={`grid h-[2.35rem] w-[2.35rem] place-items-center rounded-full ${item.kind === "github" ? "bg-[rgba(239,123,67,0.14)] text-[var(--accent-strong)] dark:bg-[rgba(255,179,109,0.12)] dark:text-[var(--accent-strong)]" : "bg-[rgba(239,123,67,0.1)] text-[var(--accent-strong)] dark:bg-[rgba(255,179,109,0.1)] dark:text-[var(--accent-strong)]"}`}
+                    className="grid h-[2.35rem] w-[2.35rem] place-items-center rounded-full bg-[rgba(239,123,67,0.1)] text-[var(--accent-strong)] dark:bg-[rgba(255,179,109,0.1)] dark:text-[var(--accent-strong)]"
                   >
                     <span className={item.kind === "github" ? "h-[1.35rem] w-[1.35rem]" : ""}>
                       {renderContactIcon(item.kind)}
