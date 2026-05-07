@@ -45,30 +45,31 @@ export type GitHubRelease = {
   assets?: GitHubReleaseAsset[];
 };
 
-export const githubLatestReleaseUrl = "https://github.com/mileson/moticlaw/releases/latest";
-export const githubLatestReleaseApiUrl = "https://api.github.com/repos/mileson/moticlaw/releases/latest";
+export const githubReleaseRepo = "mileson/moticlaw-desktop";
+export const githubLatestReleaseUrl = `https://github.com/${githubReleaseRepo}/releases/latest`;
+export const githubLatestReleaseApiUrl = `https://api.github.com/repos/${githubReleaseRepo}/releases/latest`;
 
 export const fallbackReleaseManifest: ReleaseManifest = {
-  version: "2026.5.7",
+  version: "0.1.2",
   channel: "release",
-  generated_at: "2026-04-22T07:33:48Z",
-  release_url: "https://github.com/mileson/moticlaw/releases/tag/v2026.5.7",
+  generated_at: "2026-05-07T06:48:49Z",
+  release_url: "https://github.com/mileson/moticlaw-desktop/releases/tag/v0.1.2",
   artifacts: {
     "darwin-arm64": {
       archive: {
-        filename: "MotiClaw-v0.1.0-macos-arm64.dmg",
-        url: "https://github.com/mileson/moticlaw/releases/download/v2026.5.7/MotiClaw-v0.1.0-macos-arm64.dmg",
-        sha256: "ba67c1815a93fb8da469eafc43d62a1605cddfe8d9adc29e91c9c0a73f74106f",
-        size_bytes: 217108029,
+        filename: "MotiClaw-v0.1.2-macos-arm64.dmg",
+        url: "https://github.com/mileson/moticlaw-desktop/releases/download/v0.1.2/MotiClaw-v0.1.2-macos-arm64.dmg",
+        sha256: "97dfef4f0d2272b4345c57ce567a632c9128633f7e243a2183b07d77c3eb5b00",
+        size_bytes: 217140214,
         content_type: "application/x-apple-diskimage",
       },
     },
     "darwin-x64": {
       archive: {
-        filename: "MotiClaw-v0.1.0-macos-x64.dmg",
-        url: "https://github.com/mileson/moticlaw/releases/download/v2026.5.7/MotiClaw-v0.1.0-macos-x64.dmg",
-        sha256: "1ac63ff50a35589f2268193937c22b224853a35574fed3dfcd927504c778dec0",
-        size_bytes: 224173566,
+        filename: "MotiClaw-v0.1.2-macos-x64.dmg",
+        url: "https://github.com/mileson/moticlaw-desktop/releases/download/v0.1.2/MotiClaw-v0.1.2-macos-x64.dmg",
+        sha256: "e6eff64ca617fba69eeb3d16b21419f3f65b6e0e9eb872c89c4981ff65adbf91",
+        size_bytes: 224196098,
         content_type: "application/x-apple-diskimage",
       },
     },
@@ -79,8 +80,22 @@ function normalizeSha(value: string | undefined) {
   return value?.replace(/^sha256:/i, "");
 }
 
-function normalizeVersion(value: string | undefined) {
-  return normalizeDateVersion(value) || fallbackReleaseManifest.version;
+function normalizeVersion(...values: Array<string | undefined>) {
+  for (const value of values) {
+    const semanticVersion = normalizeSemanticVersion(value);
+    if (semanticVersion) return semanticVersion;
+  }
+  for (const value of values) {
+    const dateVersion = normalizeDateVersion(value);
+    if (dateVersion) return dateVersion;
+  }
+  return fallbackReleaseManifest.version;
+}
+
+function normalizeSemanticVersion(value: string | undefined) {
+  const text = value || "";
+  const match = text.match(/(?:^|[^\d])v?(\d+\.\d+\.\d+)(?:[^\d]|$)/i);
+  return match?.[1] ?? "";
 }
 
 function normalizeDateVersion(value: string | undefined) {
@@ -142,7 +157,7 @@ export function transformGitHubRelease(release: GitHubRelease): ReleaseManifest 
   }
 
   return {
-    version: normalizeVersion(release.tag_name ?? release.name),
+    version: normalizeVersion(release.tag_name, release.name),
     generated_at: release.published_at,
     release_url: release.html_url ?? githubLatestReleaseUrl,
     artifacts,

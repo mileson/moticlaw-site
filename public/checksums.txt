@@ -1,2 +1,2 @@
-ba67c1815a93fb8da469eafc43d62a1605cddfe8d9adc29e91c9c0a73f74106f  MotiClaw-v0.1.0-macos-arm64.dmg
-1ac63ff50a35589f2268193937c22b224853a35574fed3dfcd927504c778dec0  MotiClaw-v0.1.0-macos-x64.dmg
+97dfef4f0d2272b4345c57ce567a632c9128633f7e243a2183b07d77c3eb5b00  MotiClaw-v0.1.2-macos-arm64.dmg
+e6eff64ca617fba69eeb3d16b21419f3f65b6e0e9eb872c89c4981ff65adbf91  MotiClaw-v0.1.2-macos-x64.dmg

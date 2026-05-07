@@ -115,7 +115,7 @@ const copy = {
       body: "The download points to the latest GitHub Release. Use the button for the installer, or run the command to save the package locally.",
       assetLabel: "macOS Apple Silicon",
       commandNote: "Latest macOS package",
-      commands: ["curl -L -o MotiClaw.dmg https://github.com/mileson/moticlaw/releases/latest"],
+      commands: ["curl -L -o MotiClaw.dmg https://github.com/mileson/moticlaw-desktop/releases/latest"],
       /*
        * Hidden until the remaining release packages are rebuilt:
        *
@@ -172,19 +172,19 @@ const copy = {
         {
           title: "GitHub",
           body: "View the source",
-          href: "https://github.com/mileson/moticlaw",
+          href: "https://github.com/mileson/moticlaw-desktop",
           kind: "github",
         },
         {
           title: "Issues",
           body: "Report feedback",
-          href: "https://github.com/mileson/moticlaw/issues",
+          href: "https://github.com/mileson/moticlaw-desktop/issues",
           kind: "issues",
         },
         {
           title: "Releases",
           body: "Track updates",
-          href: "https://github.com/mileson/moticlaw/releases",
+          href: "https://github.com/mileson/moticlaw-desktop/releases",
           kind: "releases",
         },
       ],
@@ -246,7 +246,7 @@ const copy = {
       body: "下载入口会指向 GitHub Release 的最新版本。你可以点击按钮下载安装包，也可以用命令保存到本地。",
       assetLabel: "macOS Apple Silicon",
       commandNote: "最新 macOS 安装包",
-      commands: ["curl -L -o MotiClaw.dmg https://github.com/mileson/moticlaw/releases/latest"],
+      commands: ["curl -L -o MotiClaw.dmg https://github.com/mileson/moticlaw-desktop/releases/latest"],
       /*
        * 其他平台补齐前先隐藏：
        *
@@ -303,19 +303,19 @@ const copy = {
         {
           title: "GitHub",
           body: "查看源码",
-          href: "https://github.com/mileson/moticlaw",
+          href: "https://github.com/mileson/moticlaw-desktop",
           kind: "github",
         },
         {
           title: "问题反馈",
           body: "提交 issue",
-          href: "https://github.com/mileson/moticlaw/issues",
+          href: "https://github.com/mileson/moticlaw-desktop/issues",
           kind: "issues",
         },
         {
           title: "版本发布",
           body: "查看更新",
-          href: "https://github.com/mileson/moticlaw/releases",
+          href: "https://github.com/mileson/moticlaw-desktop/releases",
           kind: "releases",
         },
       ],
