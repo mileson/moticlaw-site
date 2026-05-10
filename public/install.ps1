@@ -48,7 +48,7 @@ function Resolve-ManifestSource {
     if (-not [string]::IsNullOrWhiteSpace($ManifestUrl)) {
         return $ManifestUrl
     }
-    return "https://moticlaw.com/release-manifest.json"
+    return "https://moticlaw.com/api/releases/latest"
 }
 
 function Fetch-ToFile([string]$SourceRef, [string]$TargetFile) {

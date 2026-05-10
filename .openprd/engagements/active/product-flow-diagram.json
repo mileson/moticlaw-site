@@ -1,0 +1,196 @@
+{
+  "type": "product-flow",
+  "version": 1,
+  "generatedAt": "2026-05-06 21:55:46",
+  "locale": "zh-CN",
+  "title": "MotiClaw 官网安装包下载流程",
+  "subtitle": "把首页 Quick Start 命令入口升级为首屏下载按钮与平台选择弹窗",
+  "actors": [
+    "访客",
+    "官网前端",
+    "发布清单"
+  ],
+  "steps": [
+    {
+      "id": "visit-home",
+      "name": "进入官网首页",
+      "type": "user_action",
+      "lane": "访客",
+      "subtitle": "用户来到首屏，看到 MotiClaw 本地运行主张、支持平台和下载按钮。",
+      "details": [
+        "待补充"
+      ]
+    },
+    {
+      "id": "open-download",
+      "name": "点击 Download",
+      "type": "user_action",
+      "lane": "访客",
+      "subtitle": "主 CTA、页头 CTA 或 Quick Start 区按钮统一打开下载弹窗。",
+      "details": [
+        "待补充"
+      ]
+    },
+    {
+      "id": "load-manifest",
+      "name": "读取发布清单",
+      "type": "system_process",
+      "lane": "发布清单",
+      "subtitle": "待补充",
+      "details": [
+        "读取 release-manifest/latest.json 中的 version、generated_at、artifact URL、sha256、size_bytes。",
+        "只把真实存在的 artifact 展示为可下载。"
+      ]
+    },
+    {
+      "id": "detect-platform",
+      "name": "识别当前系统",
+      "type": "system_process",
+      "lane": "官网前端",
+      "subtitle": "待补充",
+      "details": [
+        "根据浏览器平台信息生成推荐平台。",
+        "当前真实可用包为 macOS Apple Silicon v0.1.2。"
+      ]
+    },
+    {
+      "id": "has-artifact",
+      "name": "是否有匹配安装包",
+      "type": "decision",
+      "lane": "官网前端",
+      "subtitle": "推荐项必须来自真实发布清单；缺失时展示兜底安装方式。",
+      "details": [
+        "待补充"
+      ]
+    },
+    {
+      "id": "show-recommended",
+      "name": "展示推荐下载卡",
+      "type": "success",
+      "lane": "官网前端",
+      "subtitle": "弹窗显示版本、日期、检测系统、推荐文件名、大小、校验摘要和安装提示。",
+      "details": [
+        "待补充"
+      ]
+    },
+    {
+      "id": "show-fallback",
+      "name": "展示备用安装入口",
+      "type": "error_path",
+      "lane": "官网前端",
+      "subtitle": "平台暂未发布时禁用下载按钮，给出一键安装命令、GitHub Release 或等待提示。",
+      "details": [
+        "待补充"
+      ]
+    },
+    {
+      "id": "download-or-copy",
+      "name": "下载或复制安装命令",
+      "type": "user_action",
+      "lane": "访客",
+      "subtitle": "用户下载推荐安装包，或复制备用安装命令继续安装。",
+      "details": [
+        "待补充"
+      ]
+    }
+  ],
+  "transitions": [
+    {
+      "from": "visit-home",
+      "to": "open-download",
+      "label": "看见首屏 CTA",
+      "type": "standard"
+    },
+    {
+      "from": "open-download",
+      "to": "load-manifest",
+      "label": "打开弹窗",
+      "type": "standard"
+    },
+    {
+      "from": "load-manifest",
+      "to": "detect-platform",
+      "label": "拿到版本与安装包数据",
+      "type": "standard"
+    },
+    {
+      "from": "detect-platform",
+      "to": "has-artifact",
+      "label": "匹配系统和架构",
+      "type": "standard"
+    },
+    {
+      "from": "has-artifact",
+      "to": "show-recommended",
+      "label": "有真实包",
+      "type": "standard"
+    },
+    {
+      "from": "has-artifact",
+      "to": "show-fallback",
+      "label": "无真实包或清单失败",
+      "type": "error_path"
+    },
+    {
+      "from": "show-recommended",
+      "to": "download-or-copy",
+      "label": "点击下载",
+      "type": "standard"
+    },
+    {
+      "from": "show-fallback",
+      "to": "download-or-copy",
+      "label": "复制备用命令",
+      "type": "standard"
+    }
+  ],
+  "summaryCards": [
+    {
+      "title": "转化重点",
+      "color": "success",
+      "items": [
+        "首屏按钮不再只跳锚点，而是直接打开下载弹窗。",
+        "弹窗先给推荐安装包，再给其它平台和备用安装。",
+        "当前只有真实发布包的平台可点击下载。"
+      ]
+    },
+    {
+      "title": "评审风险",
+      "color": "decision",
+      "items": [
+        "Windows/Linux/macOS Intel 没有真实包前只能显示即将开放。",
+        "直接下载 tar.gz 还是优先脚本安装需要确认。",
+        "安装安全提示要面向普通用户，不写内部实现细节。"
+      ]
+    }
+  ],
+  "sidePanels": [
+    {
+      "title": "开放问题",
+      "color": "error_path",
+      "items": [
+        "待补充"
+      ]
+    },
+    {
+      "title": "评审说明",
+      "color": "decision",
+      "items": [
+        "请确认下载按钮默认行为：直接下载推荐包，还是先展示一键安装命令。",
+        "请确认无包平台的展示策略：隐藏、禁用，或显示即将开放。"
+      ]
+    }
+  ],
+  "metadata": {
+    "projectName": "MotiClaw 官网安装包下载流程",
+    "productType": "b2b",
+    "owner": "超级峰 / Codex",
+    "versionId": "v0001",
+    "targetSystem": "moticlaw-site Next.js homepage",
+    "reviewStatus": "pending-confirmation"
+  },
+  "reviewInstructions": [
+    "请确认下载按钮默认行为：直接下载推荐包，还是先展示一键安装命令。",
+    "请确认无包平台的展示策略：隐藏、禁用，或显示即将开放。"
+  ]
+}

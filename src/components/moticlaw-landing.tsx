@@ -1,3 +1,18 @@
+/*
+## 核心功能
+实现官网首页的完整交互界面，包括首屏、下载弹窗、平台检测、语言切换和主题切换。
+## 输入
+接收服务端注入的初始语言与最新发布清单，并在客户端按需刷新 `/api/releases/latest`。
+## 输出
+输出官网主页面的可交互 React 视图，以及面向 macOS、Windows、Linux 的下载入口。
+## 定位
+位于 `src/components`，是首页唯一的重量级展示组件和下载体验承载层。
+## 依赖
+依赖 React、`react-dom`、`@phosphor-icons/react`、`src/lib/locale.ts` 和 `src/lib/release-manifest.ts`。
+## 维护规则
+- 修改下载推荐、平台可见性、语言文案或主题交互时，必须同步更新本说明书。
+- 若首页拆分为多个子组件，应同步更新 `src/components` 文件夹 README 和 `docs/basic/app-flow.md`。
+*/
 "use client";
 
 import {
@@ -29,11 +44,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { MouseEvent } from "react";
 import type { Locale } from "@/lib/locale";
 import {
-  fallbackReleaseManifest,
-  githubLatestReleaseUrl,
   type PlatformGroup,
   type PlatformKey,
-  type ReleaseArtifact,
+  type ReleaseArchive,
   type ReleaseManifest,
 } from "@/lib/release-manifest";
 
@@ -70,6 +83,7 @@ const localeMenuOffset = 4;
 
 const platformGroups: PlatformGroup[] = ["macos", "windows", "linux"];
 const platformOptions: Array<{ key: PlatformKey; group: PlatformGroup }> = [
+  { key: "darwin-arm64", group: "macos" },
   { key: "darwin-x64", group: "macos" },
   { key: "windows-x64", group: "windows" },
   { key: "windows-arm64", group: "windows" },
@@ -79,12 +93,6 @@ const platformOptions: Array<{ key: PlatformKey; group: PlatformGroup }> = [
   { key: "linux-appimage-arm64", group: "linux" },
   { key: "linux-rpm-x64", group: "linux" },
 ];
-const recommendedPlatformOptions: Array<{ key: PlatformKey; group: PlatformGroup }> = [
-  { key: "darwin-arm64", group: "macos" },
-  ...platformOptions,
-];
-const pendingPlatformGroups = new Set<PlatformGroup>(["windows", "linux"]);
-const downloadablePlatformOptions = recommendedPlatformOptions.filter((option) => !pendingPlatformGroups.has(option.group));
 const fallbackPlatformKey: PlatformKey = "darwin-arm64";
 const defaultDetectedPlatform: DetectedPlatform = { os: "mac", arch: "arm64" };
 
@@ -98,7 +106,7 @@ const copy = {
     heroPlatformLabel: "Supported",
     primaryCta: "Download",
     secondaryCta: "See capabilities",
-    releaseBadge: "Latest macOS installer available",
+    releaseBadge: "Latest installers available",
     statsSectionTitle: "Product Features",
     stats: [
       { title: "Local-first", body: "Your data and agents run on your own device — no third-party servers involved.", icon: HardDrives },
@@ -111,11 +119,11 @@ const copy = {
     quickStart: {
       eyebrow: "Quick Start",
       panelTitle: "Quick Start",
-      title: "macOS Apple Silicon installer.",
-      body: "The download points to the latest GitHub Release. Use the button for the installer, or run the command to save the package locally.",
-      assetLabel: "macOS Apple Silicon",
-      commandNote: "Latest macOS package",
-      commands: ["curl -L -o MotiClaw.dmg https://github.com/mileson/moticlaw-desktop/releases/latest"],
+      title: "Latest desktop installer.",
+      body: "The download points to the latest public OSS release. Use the button for the installer, or run the command to save the package locally.",
+      assetLabel: "Latest OSS package",
+      commandNote: "Latest installer package",
+      commands: ["curl -L -o release.json https://moticlaw.oss-cn-hangzhou.aliyuncs.com/desktop/releases/latest.json"],
       /*
        * Hidden until the remaining release packages are rebuilt:
        *
@@ -198,13 +206,14 @@ const copy = {
       released: "Released on",
       detected: "Detected device",
       recommended: "Recommended download",
-      installNote: "On first launch, go to System Settings -> Privacy & Security and allow the app to open.",
-      unavailable: "Coming soon",
+      installNote: "Downloaded from the latest public OSS release.",
+      unavailable: "Unavailable",
       otherPlatforms: "Other platforms",
-      githubRelease: "View GitHub Release",
+      githubRelease: "Open release manifest",
       copyCommand: "Copy command",
       close: "Close download dialog",
       size: "Size",
+      platformLine: "Platform support",
       groups: { macos: "macOS", windows: "Windows", linux: "Linux" },
       platforms: {
         "darwin-arm64": "macOS Apple Silicon",
@@ -229,7 +238,7 @@ const copy = {
     heroPlatformLabel: "支持",
     primaryCta: "下载安装",
     secondaryCta: "查看能力",
-    releaseBadge: "最新版 macOS 安装包已开放",
+    releaseBadge: "最新版安装包已开放",
     statsSectionTitle: "产品特色",
     stats: [
       { title: "本地优先", body: "数据和 Agent 都运行在你自己的设备上，不经过任何第三方服务器。", icon: HardDrives },
@@ -242,11 +251,11 @@ const copy = {
     quickStart: {
       eyebrow: "快速开始",
       panelTitle: "快速开始",
-      title: "macOS Apple Silicon 安装包。",
-      body: "下载入口会指向 GitHub Release 的最新版本。你可以点击按钮下载安装包，也可以用命令保存到本地。",
-      assetLabel: "macOS Apple Silicon",
-      commandNote: "最新 macOS 安装包",
-      commands: ["curl -L -o MotiClaw.dmg https://github.com/mileson/moticlaw-desktop/releases/latest"],
+      title: "最新桌面安装包。",
+      body: "下载入口会指向 OSS 的最新公开版本。你可以点击按钮下载安装包，也可以用命令保存到本地。",
+      assetLabel: "最新 OSS 安装包",
+      commandNote: "最新安装包",
+      commands: ["curl -L -o release.json https://moticlaw.oss-cn-hangzhou.aliyuncs.com/desktop/releases/latest.json"],
       /*
        * 其他平台补齐前先隐藏：
        *
@@ -329,13 +338,14 @@ const copy = {
       released: "发布于",
       detected: "检测到你的设备",
       recommended: "推荐下载",
-      installNote: "首次启动时，请前往“系统设置”→“隐私与安全性”，允许打开应用。",
-      unavailable: "即将开放",
+      installNote: "下载内容来自最新公开 OSS 发布。",
+      unavailable: "暂不可用",
       otherPlatforms: "其它平台",
-      githubRelease: "查看 GitHub Release",
+      githubRelease: "查看发布清单",
       copyCommand: "复制命令",
       close: "关闭下载弹窗",
       size: "大小",
+      platformLine: "支持平台",
       groups: { macos: "macOS", windows: "Windows", linux: "Linux" },
       platforms: {
         "darwin-arm64": "macOS Apple Silicon",
@@ -389,6 +399,10 @@ function formatReleaseDate(value: string | undefined, locale: Locale) {
   }).format(date);
 }
 
+function getDisplayVersion(manifest: ReleaseManifest) {
+  return manifest.display_version || `v${manifest.version}`;
+}
+
 function formatBytes(value: number | undefined) {
   if (!value) return "";
   return `${(value / 1024 / 1024).toFixed(1)} MB`;
@@ -405,7 +419,7 @@ async function fetchReleaseManifest(signal: AbortSignal): Promise<ReleaseManifes
     if (Object.keys(manifest.artifacts).length > 0) return manifest;
   }
 
-  return fallbackReleaseManifest;
+  throw new Error("latest_release_unavailable");
 }
 
 function isAbortError(error: unknown) {
@@ -538,7 +552,7 @@ function candidateDownloadsForDetectedPlatform(detectedPlatform: DetectedPlatfor
   return candidates;
 }
 
-function archiveExtension(archive: ReleaseArtifact["archive"] | undefined): ReleaseDownloadExtension | null {
+function archiveExtension(archive: ReleaseArchive | undefined): ReleaseDownloadExtension | null {
   const filename = archive?.filename?.toLowerCase() ?? "";
 
   if (filename.endsWith(".dmg")) return "dmg";
@@ -547,6 +561,14 @@ function archiveExtension(archive: ReleaseArtifact["archive"] | undefined): Rele
   if (filename.endsWith(".deb")) return "deb";
   if (filename.endsWith(".rpm")) return "rpm";
   return null;
+}
+
+function isVisibleArtifact(key: PlatformKey, archive: ReleaseArchive | undefined) {
+  if (!archive?.url) return false;
+  if (key === "windows-x64" || key === "windows-arm64") {
+    return archive.filename?.toLowerCase().endsWith("-setup.exe") ?? false;
+  }
+  return true;
 }
 
 function getDetectedPlatformLabel(detectedPlatform: DetectedPlatform, downloadCopy: (typeof copy)[Locale]["download"]) {
@@ -563,11 +585,9 @@ function getDetectedPlatformLabel(detectedPlatform: DetectedPlatform, downloadCo
 }
 
 function getAvailablePlatformKey(manifest: ReleaseManifest, detectedPlatform: DetectedPlatform) {
-  const downloadableKeys = new Set(downloadablePlatformOptions.map((option) => option.key));
-
   for (const candidate of candidateDownloadsForDetectedPlatform(detectedPlatform)) {
     const archive = manifest.artifacts[candidate.key]?.archive;
-    if (downloadableKeys.has(candidate.key) && archive?.url && archiveExtension(archive) === candidate.extension) {
+    if (isVisibleArtifact(candidate.key, archive) && archiveExtension(archive) === candidate.extension) {
       return candidate.key;
     }
   }
@@ -577,16 +597,28 @@ function getAvailablePlatformKey(manifest: ReleaseManifest, detectedPlatform: De
     const extensions = downloadExtensionsForOs(detectedPlatform.os);
 
     for (const extension of extensions) {
-      const fallbackOption = downloadablePlatformOptions.find((option) => {
+      const fallbackOption = platformOptions.find((option) => {
         const archive = manifest.artifacts[option.key]?.archive;
-        return option.group === detectedGroup && archive?.url && archiveExtension(archive) === extension;
+        return option.group === detectedGroup && isVisibleArtifact(option.key, archive) && archiveExtension(archive) === extension;
       });
 
       if (fallbackOption) return fallbackOption.key;
     }
   }
 
-  return downloadablePlatformOptions.find((option) => manifest.artifacts[option.key]?.archive?.url)?.key ?? fallbackPlatformKey;
+  return platformOptions.find((option) => isVisibleArtifact(option.key, manifest.artifacts[option.key]?.archive))?.key ?? fallbackPlatformKey;
+}
+
+function getInstallNoteForGroup(group: PlatformGroup, locale: Locale) {
+  if (locale === "zh") {
+    if (group === "macos") return "首次启动时，如系统提示，请前往“系统设置”→“隐私与安全性”允许打开应用。";
+    if (group === "windows") return "下载的是安装版 .exe，运行后按向导完成安装即可。";
+    return "Linux 可按你的发行版选择 AppImage、.deb 或 .rpm 安装包。";
+  }
+
+  if (group === "macos") return "On first launch, allow the app in System Settings -> Privacy & Security if macOS asks.";
+  if (group === "windows") return "This download is the installer .exe. Run it and follow the setup steps.";
+  return "Choose AppImage, .deb, or .rpm based on your Linux distribution.";
 }
 
 function BrandIcon() {
@@ -630,7 +662,13 @@ function ThemeIcon({ theme }: { theme: Exclude<ThemeMode, "system"> }) {
   return theme === "dark" ? <Moon size={16} weight="regular" aria-hidden="true" /> : <Sun size={16} weight="regular" aria-hidden="true" />;
 }
 
-export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
+export function MotiClawLanding({
+  initialLocale,
+  initialReleaseManifest,
+}: {
+  initialLocale: Locale;
+  initialReleaseManifest: ReleaseManifest;
+}) {
   const [locale, setLocale] = useState<Locale>(initialLocale);
   const [theme, setTheme] = useState<ThemeMode>("system");
   /*
@@ -648,7 +686,7 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
     windows: false,
     linux: false,
   });
-  const [releaseManifest, setReleaseManifest] = useState<ReleaseManifest>(fallbackReleaseManifest);
+  const [releaseManifest, setReleaseManifest] = useState<ReleaseManifest>(initialReleaseManifest);
   const [detectedPlatform, setDetectedPlatform] = useState<DetectedPlatform>(defaultDetectedPlatform);
   const [isMounted, setIsMounted] = useState(false);
   const [heroVideoLoaded, setHeroVideoLoaded] = useState(false);
@@ -663,23 +701,23 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
   const [isCompactViewport, setIsCompactViewport] = useState(false);
 
   const content = copy[locale];
-  const quickStartCommands = content.quickStart.commands;
-  const quickStartNote = content.quickStart.commandNote;
   const detectedPlatformLabel = getDetectedPlatformLabel(detectedPlatform, content.download);
   const recommendedPlatformKey = getAvailablePlatformKey(releaseManifest, detectedPlatform);
   const recommendedArtifact = releaseManifest.artifacts[recommendedPlatformKey]?.archive;
   const recommendedPlatformLabel = content.download.platforms[recommendedPlatformKey];
-  const recommendedPlatformGroup = recommendedPlatformOptions.find((option) => option.key === recommendedPlatformKey)?.group ?? "macos";
-  const releaseDate = formatReleaseDate(releaseManifest.generated_at, locale);
-  const releaseUrl = releaseManifest.release_url ?? githubLatestReleaseUrl;
+  const recommendedPlatformGroup = platformOptions.find((option) => option.key === recommendedPlatformKey)?.group ?? "macos";
+  const releaseDate = formatReleaseDate(releaseManifest.release_date || releaseManifest.generated_at, locale);
+  const displayVersion = getDisplayVersion(releaseManifest);
+  const releaseUrl = releaseManifest.release_url ?? recommendedArtifact?.url ?? "";
   const releaseBadgeText =
     locale === "zh"
-      ? `v${releaseManifest.version} · ${recommendedPlatformLabel} 已开放`
-      : `v${releaseManifest.version} · ${recommendedPlatformLabel} available`;
+      ? `${displayVersion} · ${recommendedPlatformLabel} 已开放`
+      : `${displayVersion} · ${recommendedPlatformLabel} available`;
   const quickStartDisplayCommands = recommendedArtifact?.url
-    ? [`curl -L -o ${recommendedArtifact.filename ?? "MotiClaw.dmg"} ${recommendedArtifact.url}`]
-    : quickStartCommands;
-  const quickStartNoteText = `v${releaseManifest.version} · ${quickStartNote}`;
+    ? [`curl -L -o ${recommendedArtifact.filename} ${recommendedArtifact.url}`]
+    : content.quickStart.commands;
+  const quickStartNoteText = `${displayVersion} · ${content.quickStart.commandNote}`;
+  const installNoteText = getInstallNoteForGroup(recommendedPlatformGroup, locale);
   /*
    * Restore with the multi-entry quick start tabs:
    *
@@ -880,7 +918,7 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
     fetchReleaseManifest(controller.signal)
       .then((manifest) => setReleaseManifest(manifest))
       .catch((error: unknown) => {
-        if (!isAbortError(error)) setReleaseManifest(fallbackReleaseManifest);
+        if (!isAbortError(error)) console.error(error);
       });
 
     return () => controller.abort();
@@ -894,7 +932,7 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
     fetchReleaseManifest(controller.signal)
       .then((manifest) => setReleaseManifest(manifest))
       .catch((error: unknown) => {
-        if (!isAbortError(error)) setReleaseManifest(fallbackReleaseManifest);
+        if (!isAbortError(error)) console.error(error);
       });
 
     return () => controller.abort();
@@ -1121,7 +1159,7 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
                   <div className="download-modal-header">
                     <p className="download-modal-eyebrow">{content.download.recommended}</p>
                     <h2 id="download-modal-title" className="download-modal-title">
-                      {content.download.title} <span>v{releaseManifest.version}</span>
+                      {content.download.title} <span>{displayVersion}</span>
                     </h2>
                     {releaseDate ? (
                       <p className="download-modal-subtitle">
@@ -1147,7 +1185,7 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
                     </span>
                     <span className="download-package-content">
                       <span className="download-package-title">{recommendedPlatformLabel}</span>
-                      <span className="download-package-file">{recommendedArtifact?.filename ?? "GitHub Release"}</span>
+                      <span className="download-package-file">{recommendedArtifact?.filename ?? content.download.githubRelease}</span>
                       <span className="download-package-meta">
                         {formatBytes(recommendedArtifact?.size_bytes) ? `${content.download.size} ${formatBytes(recommendedArtifact?.size_bytes)}` : content.download.githubRelease}
                       </span>
@@ -1157,7 +1195,7 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
                     </span>
                     <span className="download-package-note">
                       <Info size={15} weight="regular" aria-hidden="true" />
-                      <span>{content.download.installNote}</span>
+                      <span>{installNoteText}</span>
                     </span>
                   </a>
 
@@ -1181,12 +1219,12 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
                       <div className="download-platform-groups">
                         {platformGroups.map((group) => {
                           const groupOptions = platformOptions.filter((option) => option.group === group);
-                          const groupPending = pendingPlatformGroups.has(group);
                           const groupExpanded = platformGroupOpen[group];
+                          const availableInGroup = groupOptions.some((option) => isVisibleArtifact(option.key, releaseManifest.artifacts[option.key]?.archive));
 
                           return (
                             <div key={group} className="download-platform-group">
-                              {groupPending ? (
+                              {!availableInGroup ? (
                                 <div className="download-platform-group-title download-platform-group-title-static">
                                   <span className="download-platform-group-name">
                                     {renderPlatformIcon(group, 16)}
@@ -1218,11 +1256,11 @@ export function MotiClawLanding({ initialLocale }: { initialLocale: Locale }) {
                                 </button>
                               )}
 
-                              {!groupPending && groupExpanded ? (
+                              {availableInGroup && groupExpanded ? (
                                 <div className="download-platform-list">
                                   {groupOptions.map((option) => {
                                     const artifact = releaseManifest.artifacts[option.key]?.archive;
-                                    const available = Boolean(artifact?.url);
+                                    const available = isVisibleArtifact(option.key, artifact);
 
                                     return available ? (
                                       <a

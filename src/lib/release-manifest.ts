@@ -1,3 +1,18 @@
+/*
+## 核心功能
+定义官网消费的发布清单类型，并把官方 OSS `latest.json` 转成前端统一的发布模型。
+## 输入
+接收阿里云 OSS 最新发布清单 JSON，以及官网内部的平台键映射规则。
+## 输出
+输出供首页和 `/api/releases/latest` 共用的 `ReleaseManifest` 数据结构。
+## 定位
+位于 `src/lib`，是官网发布数据获取、转换和平台筛选的核心模块。
+## 依赖
+依赖浏览器/Node `fetch`、TypeScript 类型系统，以及官方 OSS 发布对象格式。
+## 维护规则
+- OSS manifest 结构、平台键映射或官网展示策略变化时，必须同步更新本说明书。
+- 任何新增平台或变种都要先在这里完成映射，再进入页面展示层。
+*/
 export type PlatformKey =
   | "darwin-arm64"
   | "darwin-x64"
@@ -11,155 +26,104 @@ export type PlatformKey =
 
 export type PlatformGroup = "macos" | "windows" | "linux";
 
-export type ReleaseArtifact = {
-  archive?: {
-    filename?: string;
-    url?: string;
-    sha256?: string;
-    size_bytes?: number;
-    content_type?: string;
-  };
+export type ReleaseArchive = {
+  id: string;
+  platform: PlatformGroup;
+  arch: "arm64" | "x64";
+  variant: "dmg" | "setup" | "portable" | "deb" | "appimage" | "rpm";
+  display_name?: string;
+  filename: string;
+  relative_path: string;
+  url: string;
+  sha256?: string;
+  size_bytes?: number;
+  content_type?: string;
+  recommended_for?: string[];
 };
 
 export type ReleaseManifest = {
   version: string;
   channel?: string;
+  release_date?: string;
   generated_at?: string;
   release_url?: string;
-  artifacts: Partial<Record<PlatformKey, ReleaseArtifact>>;
+  display_version?: string;
+  release_name?: string;
+  artifacts: Partial<Record<PlatformKey, { archive: ReleaseArchive }>>;
 };
 
-export type GitHubReleaseAsset = {
-  name: string;
-  browser_download_url?: string;
-  size?: number;
-  digest?: string;
-  content_type?: string;
+type OssReleaseArtifact = ReleaseArchive;
+
+type OssLatestReleaseManifest = {
+  version?: string;
+  channel?: string;
+  release_date?: string;
+  generated_at?: string;
+  release_url?: string;
+  display_version?: string;
+  release_name?: string;
+  artifacts?: OssReleaseArtifact[];
 };
 
-export type GitHubRelease = {
-  tag_name?: string;
-  name?: string;
-  html_url?: string;
-  published_at?: string;
-  assets?: GitHubReleaseAsset[];
-};
+export const ossLatestReleaseManifestUrl = "https://moticlaw.oss-cn-hangzhou.aliyuncs.com/desktop/releases/latest.json";
 
-export const githubReleaseRepo = "mileson/moticlaw-desktop";
-export const githubLatestReleaseUrl = `https://github.com/${githubReleaseRepo}/releases/latest`;
-export const githubLatestReleaseApiUrl = `https://api.github.com/repos/${githubReleaseRepo}/releases/latest`;
+const platformKeyMap = new Map<string, PlatformKey>([
+  ["macos-arm64-dmg", "darwin-arm64"],
+  ["macos-x64-dmg", "darwin-x64"],
+  ["windows-x64-setup", "windows-x64"],
+  ["windows-arm64-setup", "windows-arm64"],
+  ["linux-x64-deb", "linux-deb-x64"],
+  ["linux-arm64-deb", "linux-deb-arm64"],
+  ["linux-x64-appimage", "linux-appimage-x64"],
+  ["linux-arm64-appimage", "linux-appimage-arm64"],
+  ["linux-x64-rpm", "linux-rpm-x64"],
+]);
 
-export const fallbackReleaseManifest: ReleaseManifest = {
-  version: "0.1.2",
-  channel: "release",
-  generated_at: "2026-05-07T06:48:49Z",
-  release_url: "https://github.com/mileson/moticlaw-desktop/releases/tag/v0.1.2",
-  artifacts: {
-    "darwin-arm64": {
-      archive: {
-        filename: "MotiClaw-v0.1.2-macos-arm64.dmg",
-        url: "https://github.com/mileson/moticlaw-desktop/releases/download/v0.1.2/MotiClaw-v0.1.2-macos-arm64.dmg",
-        sha256: "97dfef4f0d2272b4345c57ce567a632c9128633f7e243a2183b07d77c3eb5b00",
-        size_bytes: 217140214,
-        content_type: "application/x-apple-diskimage",
-      },
-    },
-    "darwin-x64": {
-      archive: {
-        filename: "MotiClaw-v0.1.2-macos-x64.dmg",
-        url: "https://github.com/mileson/moticlaw-desktop/releases/download/v0.1.2/MotiClaw-v0.1.2-macos-x64.dmg",
-        sha256: "e6eff64ca617fba69eeb3d16b21419f3f65b6e0e9eb872c89c4981ff65adbf91",
-        size_bytes: 224196098,
-        content_type: "application/x-apple-diskimage",
-      },
-    },
-  },
-};
+const semanticVersionPattern = /(?:^|[^\d])v?(\d+\.\d+\.\d+)(?:[^\d]|$)/i;
 
-function normalizeSha(value: string | undefined) {
-  return value?.replace(/^sha256:/i, "");
-}
-
-function normalizeVersion(...values: Array<string | undefined>) {
-  for (const value of values) {
-    const semanticVersion = normalizeSemanticVersion(value);
-    if (semanticVersion) return semanticVersion;
-  }
-  for (const value of values) {
-    const dateVersion = normalizeDateVersion(value);
-    if (dateVersion) return dateVersion;
-  }
-  return fallbackReleaseManifest.version;
-}
-
-function normalizeSemanticVersion(value: string | undefined) {
-  const text = value || "";
-  const match = text.match(/(?:^|[^\d])v?(\d+\.\d+\.\d+)(?:[^\d]|$)/i);
+export function normalizeVersion(value: string | undefined) {
+  const match = (value || "").match(semanticVersionPattern);
   return match?.[1] ?? "";
 }
 
-function normalizeDateVersion(value: string | undefined) {
-  const text = (value || "").replace(/^v/i, "");
-  const match = text.match(/(?:^|[^\d])(\d{4})[.-](\d{1,2})[.-](\d{1,2})(?:[^\d]|$)/);
-  if (!match) return "";
-  return `${Number(match[1])}.${Number(match[2])}.${Number(match[3])}`;
+export function platformKeyForArtifact(artifact: OssReleaseArtifact): PlatformKey | null {
+  return platformKeyMap.get(`${artifact.platform}-${artifact.arch}-${artifact.variant}`) ?? null;
 }
 
-function platformKeyForAssetName(name: string): PlatformKey | null {
-  const normalized = name.toLowerCase();
-  const isMac = normalized.includes("mac") || normalized.includes("darwin");
-  const isWindows = normalized.includes("windows") || normalized.includes("win32") || normalized.includes("win-");
-  const isLinux = normalized.includes("linux");
-  const isArm = normalized.includes("arm64") || normalized.includes("aarch64");
-  const isX64 = normalized.includes("x64") || normalized.includes("x86_64") || normalized.includes("amd64") || normalized.includes("intel");
-
-  if (isMac && isArm) return "darwin-arm64";
-  if (isMac && isX64) return "darwin-x64";
-  if (isWindows && isArm) return "windows-arm64";
-  if (isWindows) return "windows-x64";
-  if (isLinux && normalized.endsWith(".deb") && isArm) return "linux-deb-arm64";
-  if (isLinux && normalized.endsWith(".deb")) return "linux-deb-x64";
-  if (isLinux && normalized.includes("appimage") && isArm) return "linux-appimage-arm64";
-  if (isLinux && normalized.includes("appimage")) return "linux-appimage-x64";
-  if (isLinux && normalized.endsWith(".rpm")) return "linux-rpm-x64";
-
-  return null;
-}
-
-function assetPriority(name: string) {
-  const normalized = name.toLowerCase();
-  if (normalized.endsWith(".dmg")) return 0;
-  if (normalized.endsWith(".zip")) return 1;
-  if (normalized.endsWith(".appimage")) return 2;
-  if (normalized.endsWith(".deb")) return 3;
-  if (normalized.endsWith(".rpm")) return 4;
-  return 5;
-}
-
-export function transformGitHubRelease(release: GitHubRelease): ReleaseManifest {
+export function transformOssLatestRelease(payload: OssLatestReleaseManifest): ReleaseManifest | null {
+  const version = normalizeVersion(payload.version);
+  const sourceArtifacts = Array.isArray(payload.artifacts) ? payload.artifacts : [];
   const artifacts: ReleaseManifest["artifacts"] = {};
-  const sortedAssets = [...(release.assets ?? [])].sort((left, right) => assetPriority(left.name) - assetPriority(right.name));
 
-  for (const asset of sortedAssets) {
-    const key = platformKeyForAssetName(asset.name);
-    const url = asset.browser_download_url;
-    if (!key || !url || artifacts[key]?.archive) continue;
+  for (const artifact of sourceArtifacts) {
+    const key = platformKeyForArtifact(artifact);
+    if (!key) continue;
+    artifacts[key] = { archive: artifact };
+  }
 
-    artifacts[key] = {
-      archive: {
-        filename: asset.name,
-        url,
-        sha256: normalizeSha(asset.digest),
-        size_bytes: asset.size,
-        content_type: asset.content_type,
-      },
-    };
+  if (!version || Object.keys(artifacts).length === 0) {
+    return null;
   }
 
   return {
-    version: normalizeVersion(release.tag_name, release.name),
-    generated_at: release.published_at,
-    release_url: release.html_url ?? githubLatestReleaseUrl,
+    version,
+    channel: payload.channel || "release",
+    release_date: payload.release_date,
+    generated_at: payload.generated_at,
+    release_url: payload.release_url,
+    display_version: payload.display_version,
+    release_name: payload.release_name,
     artifacts,
   };
+}
+
+export async function fetchLatestReleaseManifest(url = ossLatestReleaseManifestUrl): Promise<ReleaseManifest | null> {
+  try {
+    const response = await fetch(url, { cache: "no-store" });
+    if (!response.ok) return null;
+    const payload = (await response.json()) as OssLatestReleaseManifest;
+    return transformOssLatestRelease(payload);
+  } catch {
+    return null;
+  }
 }

@@ -1,3 +1,18 @@
+/*
+## 核心功能
+定义官网全局根布局、字体资源、站点元信息和主题初始化脚本。
+## 输入
+接收服务器请求头中的语言信息以及所有页面子树内容。
+## 输出
+输出带全局字体变量、主题初始化脚本和 HTML 语言属性的站点骨架。
+## 定位
+位于 App Router 根层，负责整个官网页面共享的基础布局能力。
+## 依赖
+依赖 `next/headers`、`next/script`、Google Fonts 和 `src/lib/locale.ts`。
+## 维护规则
+- 调整全局字体、SEO 元信息、语言初始化或主题脚本时，必须同步更新本说明书。
+- 影响全站根布局职责时，需同步更新 `docs/basic/frontend-guidelines.md`。
+*/
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import Script from "next/script";

@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "active": true,
+  "lastEventAt": null,
+  "lastFingerprint": null,
+  "counters": {},
+  "suppressions": {
+    "inputLock": false
+  }
+}

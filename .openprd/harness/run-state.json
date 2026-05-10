@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "active": true,
+  "currentIteration": 0,
+  "lastContextAt": "2026-05-11 02:52:09",
+  "lastHookAt": null,
+  "lastOutcome": null,
+  "lastRecommendation": {
+    "type": "workflow",
+    "title": "clarify-user",
+    "command": "openprd clarify .",
+    "verifyCommand": "openprd validate .",
+    "reason": "工作区缺少用户确认的关键信息，需要先澄清再继续合成。",
+    "changeId": null,
+    "task": null,
+    "coverageItem": null
+  },
+  "updatedAt": "2026-05-11 02:52:09"
+}

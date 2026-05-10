@@ -1,9 +1,4 @@
-import {
-  fallbackReleaseManifest,
-  githubLatestReleaseApiUrl,
-  transformGitHubRelease,
-  type GitHubRelease,
-} from "@/lib/release-manifest";
+import { fetchLatestReleaseManifest, ossLatestReleaseManifestUrl } from "@/lib/release-manifest";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -13,33 +8,15 @@ const responseHeaders = {
 };
 
 export async function GET() {
-  const headers = new Headers({
-    Accept: "application/vnd.github+json",
-    "X-GitHub-Api-Version": "2022-11-28",
-  });
-  const token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
+  const releaseManifestUrl = process.env.MOTICLAW_RELEASE_MANIFEST_URL || ossLatestReleaseManifestUrl;
+  const manifest = await fetchLatestReleaseManifest(releaseManifestUrl);
 
-  if (token) {
-    headers.set("Authorization", `Bearer ${token}`);
+  if (!manifest) {
+    return Response.json(
+      { error: "latest_release_unavailable" },
+      { headers: responseHeaders, status: 502 },
+    );
   }
 
-  try {
-    const response = await fetch(githubLatestReleaseApiUrl, {
-      cache: "no-store",
-      headers,
-    });
-
-    if (response.ok) {
-      const release = (await response.json()) as GitHubRelease;
-      const manifest = transformGitHubRelease(release);
-
-      if (Object.keys(manifest.artifacts).length > 0) {
-        return Response.json(manifest, { headers: responseHeaders });
-      }
-    }
-  } catch {
-    // Keep downloads usable when GitHub is temporarily unavailable or rate-limited.
-  }
-
-  return Response.json(fallbackReleaseManifest, { headers: responseHeaders });
+  return Response.json(manifest, { headers: responseHeaders });
 }

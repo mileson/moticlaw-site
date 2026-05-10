@@ -100,7 +100,7 @@ resolve_manifest_source() {
     printf '%s\n' "$MANIFEST_URL"
     return
   fi
-  printf '%s\n' "https://moticlaw.com/release-manifest.json"
+  printf '%s\n' "https://moticlaw.com/api/releases/latest"
 }
 
 fetch_to_file() {
@@ -715,6 +715,9 @@ PY
   [[ -n "${MOTICLAW_API_PORT:-}" ]] && upsert_env "$env_file" "MOTICLAW_API_PORT" "${MOTICLAW_API_PORT}"
   [[ -n "${MOTICLAW_WEB_HOST:-}" ]] && upsert_env "$env_file" "MOTICLAW_WEB_HOST" "${MOTICLAW_WEB_HOST}"
   [[ -n "${MOTICLAW_WEB_PORT:-}" ]] && upsert_env "$env_file" "MOTICLAW_WEB_PORT" "${MOTICLAW_WEB_PORT}"
+  [[ -n "${MOTICLAW_RELEASE_MANIFEST_URL:-}" ]] && upsert_env "$env_file" "MOTICLAW_RELEASE_MANIFEST_URL" "${MOTICLAW_RELEASE_MANIFEST_URL}"
+  [[ -n "${MOTICLAW_RELEASE_MANIFEST_FILE:-}" ]] && upsert_env "$env_file" "MOTICLAW_RELEASE_MANIFEST_FILE" "${MOTICLAW_RELEASE_MANIFEST_FILE}"
+  [[ -n "${MOTICLAW_RELEASE_ARCHIVE:-}" ]] && upsert_env "$env_file" "MOTICLAW_RELEASE_ARCHIVE" "${MOTICLAW_RELEASE_ARCHIVE}"
   local effective_api_host="${MOTICLAW_API_HOST:-127.0.0.1}"
   local effective_api_port="${MOTICLAW_API_PORT:-8088}"
   upsert_env "$env_file" "OPENCLAW_API_BASE" "http://${effective_api_host}:${effective_api_port}"

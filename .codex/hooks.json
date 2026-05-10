@@ -1,0 +1,13 @@
+{
+  "UserPromptSubmit": [
+    {
+      "hooks": [
+        {
+          "type": "command",
+          "command": "node '/Users/chaojifeng/Projects/moticlaw-workspace/moticlaw-site/.codex/hooks/openprd-hook.mjs' UserPromptSubmit",
+          "timeout": 15000
+        }
+      ]
+    }
+  ]
+}

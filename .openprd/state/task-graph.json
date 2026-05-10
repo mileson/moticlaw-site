@@ -1,0 +1,437 @@
+{
+  "version": 1,
+  "generatedAt": "2026-05-11 02:52:09",
+  "nextReadyNode": "clarify",
+  "workflow": [
+    {
+      "id": "clarify",
+      "label": "clarify",
+      "kind": "workflow-step",
+      "status": "ready",
+      "dependsOn": []
+    },
+    {
+      "id": "classify",
+      "label": "classify",
+      "kind": "workflow-step",
+      "status": "done",
+      "dependsOn": [
+        "clarify"
+      ]
+    },
+    {
+      "id": "interview",
+      "label": "interview",
+      "kind": "workflow-step",
+      "status": "done",
+      "dependsOn": [
+        "classify"
+      ]
+    },
+    {
+      "id": "synthesize",
+      "label": "synthesize",
+      "kind": "workflow-step",
+      "status": "done",
+      "dependsOn": [
+        "classify",
+        "interview"
+      ]
+    },
+    {
+      "id": "validate",
+      "label": "validate",
+      "kind": "workflow-step",
+      "status": "ready",
+      "dependsOn": [
+        "synthesize"
+      ]
+    },
+    {
+      "id": "diagram",
+      "label": "diagram",
+      "kind": "workflow-step",
+      "status": "ready",
+      "dependsOn": [
+        "synthesize"
+      ]
+    },
+    {
+      "id": "freeze",
+      "label": "freeze",
+      "kind": "workflow-step",
+      "status": "blocked",
+      "dependsOn": [
+        "validate",
+        "diagram"
+      ]
+    },
+    {
+      "id": "handoff",
+      "label": "handoff",
+      "kind": "workflow-step",
+      "status": "blocked",
+      "dependsOn": [
+        "freeze"
+      ]
+    },
+    {
+      "id": "archive",
+      "label": "archive",
+      "kind": "workflow-step",
+      "status": "blocked",
+      "dependsOn": [
+        "handoff"
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "decision-log",
+      "label": "decision-log.md",
+      "kind": "record",
+      "status": "ready",
+      "dependsOn": []
+    },
+    {
+      "id": "open-questions",
+      "label": "open-questions.md",
+      "kind": "record",
+      "status": "done",
+      "dependsOn": [
+        "interview"
+      ]
+    },
+    {
+      "id": "progress",
+      "label": "progress.md",
+      "kind": "record",
+      "status": "done",
+      "dependsOn": [
+        "classify"
+      ]
+    },
+    {
+      "id": "verification",
+      "label": "verification.md",
+      "kind": "record",
+      "status": "ready",
+      "dependsOn": [
+        "freeze"
+      ]
+    },
+    {
+      "id": "architecture-diagram",
+      "label": "architecture-diagram.html",
+      "kind": "artifact",
+      "status": "ready",
+      "dependsOn": [
+        "diagram"
+      ]
+    },
+    {
+      "id": "product-flow-diagram",
+      "label": "product-flow-diagram.html",
+      "kind": "artifact",
+      "status": "done",
+      "dependsOn": [
+        "diagram"
+      ]
+    },
+    {
+      "id": "prd",
+      "label": "prd.md",
+      "kind": "artifact",
+      "status": "done",
+      "dependsOn": [
+        "synthesize"
+      ]
+    },
+    {
+      "id": "flows",
+      "label": "flows.md",
+      "kind": "artifact",
+      "status": "done",
+      "dependsOn": [
+        "synthesize"
+      ]
+    },
+    {
+      "id": "roles",
+      "label": "roles.md",
+      "kind": "artifact",
+      "status": "done",
+      "dependsOn": [
+        "synthesize"
+      ]
+    },
+    {
+      "id": "handoff",
+      "label": "handoff.md",
+      "kind": "artifact",
+      "status": "blocked",
+      "dependsOn": [
+        "freeze"
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "clarify",
+      "label": "clarify",
+      "kind": "workflow-step",
+      "status": "ready",
+      "dependsOn": []
+    },
+    {
+      "id": "classify",
+      "label": "classify",
+      "kind": "workflow-step",
+      "status": "done",
+      "dependsOn": [
+        "clarify"
+      ]
+    },
+    {
+      "id": "interview",
+      "label": "interview",
+      "kind": "workflow-step",
+      "status": "done",
+      "dependsOn": [
+        "classify"
+      ]
+    },
+    {
+      "id": "synthesize",
+      "label": "synthesize",
+      "kind": "workflow-step",
+      "status": "done",
+      "dependsOn": [
+        "classify",
+        "interview"
+      ]
+    },
+    {
+      "id": "validate",
+      "label": "validate",
+      "kind": "workflow-step",
+      "status": "ready",
+      "dependsOn": [
+        "synthesize"
+      ]
+    },
+    {
+      "id": "diagram",
+      "label": "diagram",
+      "kind": "workflow-step",
+      "status": "ready",
+      "dependsOn": [
+        "synthesize"
+      ]
+    },
+    {
+      "id": "freeze",
+      "label": "freeze",
+      "kind": "workflow-step",
+      "status": "blocked",
+      "dependsOn": [
+        "validate",
+        "diagram"
+      ]
+    },
+    {
+      "id": "handoff",
+      "label": "handoff",
+      "kind": "workflow-step",
+      "status": "blocked",
+      "dependsOn": [
+        "freeze"
+      ]
+    },
+    {
+      "id": "archive",
+      "label": "archive",
+      "kind": "workflow-step",
+      "status": "blocked",
+      "dependsOn": [
+        "handoff"
+      ]
+    },
+    {
+      "id": "decision-log",
+      "label": "decision-log.md",
+      "kind": "record",
+      "status": "ready",
+      "dependsOn": []
+    },
+    {
+      "id": "open-questions",
+      "label": "open-questions.md",
+      "kind": "record",
+      "status": "done",
+      "dependsOn": [
+        "interview"
+      ]
+    },
+    {
+      "id": "progress",
+      "label": "progress.md",
+      "kind": "record",
+      "status": "done",
+      "dependsOn": [
+        "classify"
+      ]
+    },
+    {
+      "id": "verification",
+      "label": "verification.md",
+      "kind": "record",
+      "status": "ready",
+      "dependsOn": [
+        "freeze"
+      ]
+    },
+    {
+      "id": "architecture-diagram",
+      "label": "architecture-diagram.html",
+      "kind": "artifact",
+      "status": "ready",
+      "dependsOn": [
+        "diagram"
+      ]
+    },
+    {
+      "id": "product-flow-diagram",
+      "label": "product-flow-diagram.html",
+      "kind": "artifact",
+      "status": "done",
+      "dependsOn": [
+        "diagram"
+      ]
+    },
+    {
+      "id": "prd",
+      "label": "prd.md",
+      "kind": "artifact",
+      "status": "done",
+      "dependsOn": [
+        "synthesize"
+      ]
+    },
+    {
+      "id": "flows",
+      "label": "flows.md",
+      "kind": "artifact",
+      "status": "done",
+      "dependsOn": [
+        "synthesize"
+      ]
+    },
+    {
+      "id": "roles",
+      "label": "roles.md",
+      "kind": "artifact",
+      "status": "done",
+      "dependsOn": [
+        "synthesize"
+      ]
+    },
+    {
+      "id": "handoff",
+      "label": "handoff.md",
+      "kind": "artifact",
+      "status": "blocked",
+      "dependsOn": [
+        "freeze"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "clarify",
+      "to": "classify",
+      "relation": "unblocks"
+    },
+    {
+      "from": "classify",
+      "to": "interview",
+      "relation": "enables"
+    },
+    {
+      "from": "interview",
+      "to": "synthesize",
+      "relation": "enables"
+    },
+    {
+      "from": "synthesize",
+      "to": "validate",
+      "relation": "enables"
+    },
+    {
+      "from": "synthesize",
+      "to": "diagram",
+      "relation": "enables"
+    },
+    {
+      "from": "diagram",
+      "to": "freeze",
+      "relation": "confirms"
+    },
+    {
+      "from": "validate",
+      "to": "freeze",
+      "relation": "guards"
+    },
+    {
+      "from": "freeze",
+      "to": "handoff",
+      "relation": "enables"
+    },
+    {
+      "from": "handoff",
+      "to": "archive",
+      "relation": "enables"
+    },
+    {
+      "from": "interview",
+      "to": "open-questions",
+      "relation": "updates"
+    },
+    {
+      "from": "synthesize",
+      "to": "prd",
+      "relation": "produces"
+    },
+    {
+      "from": "synthesize",
+      "to": "flows",
+      "relation": "produces"
+    },
+    {
+      "from": "synthesize",
+      "to": "roles",
+      "relation": "produces"
+    },
+    {
+      "from": "diagram",
+      "to": "architecture-diagram",
+      "relation": "produces"
+    },
+    {
+      "from": "diagram",
+      "to": "product-flow-diagram",
+      "relation": "produces"
+    },
+    {
+      "from": "freeze",
+      "to": "verification",
+      "relation": "produces"
+    },
+    {
+      "from": "freeze",
+      "to": "handoff",
+      "relation": "produces"
+    }
+  ],
+  "blockers": []
+}

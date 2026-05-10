@@ -1,0 +1,3 @@
+{"at":"2026-05-06 21:51:54","event":"agent-integration-installed","action":"init","tools":["codex"],"hookProfile":"lite","managedFileCount":22}
+{"at":"2026-05-09 12:37:24","event":"agent-integration-installed","action":"update","tools":["codex"],"hookProfile":"lite","managedFileCount":22}
+{"at":"2026-05-11 02:30:22","event":"agent-integration-installed","action":"update","tools":["codex","claude","cursor"],"hookProfile":"lite","managedFileCount":53}
