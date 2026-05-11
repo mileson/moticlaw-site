@@ -322,22 +322,6 @@ select {
   border-radius: 9999px;
 }
 
-.hero-release-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  width: fit-content;
-  max-width: 100%;
-  border: 1px solid color-mix(in srgb, var(--accent) 32%, var(--line));
-  border-radius: 9999px;
-  background: color-mix(in srgb, var(--accent-soft) 70%, transparent);
-  color: var(--accent-strong);
-  padding: 0.48rem 0.78rem;
-  font-size: 0.82rem;
-  font-weight: 650;
-  line-height: 1.2;
-}
-
 .hero-video-frame {
   position: relative;
   width: min(100%, 20rem);

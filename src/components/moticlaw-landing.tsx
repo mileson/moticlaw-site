@@ -709,10 +709,6 @@ export function MotiClawLanding({
   const releaseDate = formatReleaseDate(releaseManifest.release_date || releaseManifest.generated_at, locale);
   const displayVersion = getDisplayVersion(releaseManifest);
   const releaseUrl = releaseManifest.release_url ?? recommendedArtifact?.url ?? "";
-  const releaseBadgeText =
-    locale === "zh"
-      ? `${displayVersion} · ${recommendedPlatformLabel} 已开放`
-      : `${displayVersion} · ${recommendedPlatformLabel} available`;
   const quickStartDisplayCommands = recommendedArtifact?.url
     ? [`curl -L -o ${recommendedArtifact.filename} ${recommendedArtifact.url}`]
     : content.quickStart.commands;
@@ -1301,10 +1297,6 @@ export function MotiClawLanding({
                 {content.heroTitle}
               </h1>
               <p className="hero-subtitle max-w-2xl text-base leading-7 text-[var(--muted)] sm:text-xl sm:leading-8">{content.heroBody}</p>
-              <div className="hero-release-badge">
-                <DownloadSimple size={15} weight="bold" aria-hidden="true" />
-                <span>{releaseBadgeText}</span>
-              </div>
               <div className="hero-actions flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-start sm:gap-5">
                 <div className="hero-platform-strip inline-flex items-center gap-2 rounded-full py-2">
                   <span className="hero-platform-strip-label text-[0.8rem] font-medium tracking-[0.08em]">{content.heroPlatformLabel}</span>
