@@ -1,10 +1,10 @@
 /*
 ## 核心功能
-定义官网消费的发布清单类型，并把官方 OSS `latest.json` 转成前端统一的发布模型。
+定义官网消费的发布清单类型，并把官方 OSS `latest.json` 转成前端统一的公开发布模型。
 ## 输入
 接收阿里云 OSS 最新发布清单 JSON，以及官网内部的平台键映射规则。
 ## 输出
-输出供首页和 `/api/releases/latest` 共用的 `ReleaseManifest` 数据结构。
+输出供首页和 `/api/releases/latest` 共用的、仅包含官网公开下载项的 `ReleaseManifest` 数据结构。
 ## 定位
 位于 `src/lib`，是官网发布数据获取、转换和平台筛选的核心模块。
 ## 依赖
@@ -12,6 +12,7 @@
 ## 维护规则
 - OSS manifest 结构、平台键映射或官网展示策略变化时，必须同步更新本说明书。
 - 任何新增平台或变种都要先在这里完成映射，再进入页面展示层。
+- 官网公开平台发生变化时，必须先在这里更新过滤规则，再进入页面展示层。
 */
 export type PlatformKey =
   | "darwin-arm64"
@@ -67,6 +68,8 @@ type OssLatestReleaseManifest = {
 
 export const ossLatestReleaseManifestUrl = "https://moticlaw.oss-cn-hangzhou.aliyuncs.com/desktop/releases/latest.json";
 
+export const publicPlatformGroups: PlatformGroup[] = ["macos", "windows"];
+
 const platformKeyMap = new Map<string, PlatformKey>([
   ["macos-arm64-dmg", "darwin-arm64"],
   ["macos-x64-dmg", "darwin-x64"],
@@ -86,6 +89,14 @@ export function normalizeVersion(value: string | undefined) {
   return match?.[1] ?? "";
 }
 
+export function isPublicPlatformKey(key: PlatformKey) {
+  return !key.startsWith("linux-");
+}
+
+export function isPublicPlatformGroup(group: PlatformGroup) {
+  return publicPlatformGroups.includes(group);
+}
+
 export function platformKeyForArtifact(artifact: OssReleaseArtifact): PlatformKey | null {
   return platformKeyMap.get(`${artifact.platform}-${artifact.arch}-${artifact.variant}`) ?? null;
 }
@@ -97,7 +108,7 @@ export function transformOssLatestRelease(payload: OssLatestReleaseManifest): Re
 
   for (const artifact of sourceArtifacts) {
     const key = platformKeyForArtifact(artifact);
-    if (!key) continue;
+    if (!key || !isPublicPlatformKey(key)) continue;
     artifacts[key] = { archive: artifact };
   }
 

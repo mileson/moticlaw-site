@@ -14,11 +14,11 @@
 ## 数据流
 
 - 官方数据源固定为 `https://moticlaw.oss-cn-hangzhou.aliyuncs.com/desktop/releases/latest.json`，其返回 `schema_version/product/version/release_date/display_version/artifacts[]` 等字段。
-- `src/lib/release-manifest.ts` 负责把 OSS 的 `artifacts[]` 数组映射成官网内部的 `darwin-arm64`、`windows-x64`、`linux-deb-x64` 等平台键。
-- 官网只保留 macOS 的 `dmg`、Windows 的 `setup.exe` 和 Linux 的 `AppImage/.deb/.rpm`；Windows portable 包会在转换后被过滤掉，不进入下载弹窗。
+- `src/lib/release-manifest.ts` 负责把 OSS 的 `artifacts[]` 数组映射成官网内部的平台键，并在返回给官网前过滤掉当前未公开的平台渠道。
+- 官网当前只保留 macOS 的 `dmg` 与 Windows 的 `setup.exe`；Windows portable 包和 Linux 安装包都会在转换后被过滤掉，不进入下载弹窗或 `/api/releases/latest` 响应。
 - 首页服务端首屏和客户端下载弹窗都使用同一个统一模型，保证版本号、下载链接和平台推荐结果一致。
 
 ## 维护规则
 
 - 每次服务边界、数据流、存储或外部依赖发生变化后，必须检查并更新本文件。
-- Windows 官网下载只展示安装版 `.exe`，不展示 portable 包。
+- Windows 官网下载只展示安装版 `.exe`，不展示 portable 包；Linux 渠道下架时不得继续通过官网 API 或 UI 暴露。

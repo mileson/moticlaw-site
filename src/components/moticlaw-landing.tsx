@@ -4,7 +4,7 @@
 ## 输入
 接收服务端注入的初始语言与最新发布清单，并在客户端按需刷新 `/api/releases/latest`。
 ## 输出
-输出官网主页面的可交互 React 视图，以及面向 macOS、Windows、Linux 的下载入口。
+输出官网主页面的可交互 React 视图，以及面向 macOS 与 Windows 的公开下载入口。
 ## 定位
 位于 `src/components`，是首页唯一的重量级展示组件和下载体验承载层。
 ## 依赖
@@ -44,10 +44,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { MouseEvent } from "react";
 import type { Locale } from "@/lib/locale";
 import {
+  isPublicPlatformGroup,
   type PlatformGroup,
   type PlatformKey,
   type ReleaseArchive,
   type ReleaseManifest,
+  publicPlatformGroups,
 } from "@/lib/release-manifest";
 
 type ThemeMode = "light" | "dark" | "system";
@@ -81,17 +83,12 @@ const themeStorageKey = "moticlaw-theme";
 const localeStorageKey = "moticlaw-locale";
 const localeMenuOffset = 4;
 
-const platformGroups: PlatformGroup[] = ["macos", "windows", "linux"];
+const platformGroups = publicPlatformGroups;
 const platformOptions: Array<{ key: PlatformKey; group: PlatformGroup }> = [
   { key: "darwin-arm64", group: "macos" },
   { key: "darwin-x64", group: "macos" },
   { key: "windows-x64", group: "windows" },
   { key: "windows-arm64", group: "windows" },
-  { key: "linux-deb-x64", group: "linux" },
-  { key: "linux-deb-arm64", group: "linux" },
-  { key: "linux-appimage-x64", group: "linux" },
-  { key: "linux-appimage-arm64", group: "linux" },
-  { key: "linux-rpm-x64", group: "linux" },
 ];
 const fallbackPlatformKey: PlatformKey = "darwin-arm64";
 const defaultDetectedPlatform: DetectedPlatform = { os: "mac", arch: "arm64" };
@@ -514,7 +511,7 @@ async function detectPlatform(): Promise<DetectedPlatform> {
 function downloadExtensionsForOs(os: DetectedOs): ReleaseDownloadExtension[] {
   if (os === "mac") return ["dmg"];
   if (os === "win") return ["exe"];
-  if (os === "linux") return ["appimage", "deb", "rpm"];
+  if (os === "linux") return ["deb", "appimage", "rpm"];
   return [];
 }
 
@@ -576,11 +573,6 @@ function getDetectedPlatformLabel(detectedPlatform: DetectedPlatform, downloadCo
   if (!group) return downloadCopy.unknownDevice;
   if (detectedPlatform.arch === "unknown") return downloadCopy.groups[group];
 
-  const firstCandidate = candidateDownloadsForDetectedPlatform(detectedPlatform)[0];
-  if (firstCandidate && firstCandidate.key in downloadCopy.platforms) {
-    return downloadCopy.platforms[firstCandidate.key];
-  }
-
   return detectedPlatform.arch === "arm64" ? `${downloadCopy.groups[group]} (ARM64)` : `${downloadCopy.groups[group]} (x64)`;
 }
 
@@ -609,16 +601,20 @@ function getAvailablePlatformKey(manifest: ReleaseManifest, detectedPlatform: De
   return platformOptions.find((option) => isVisibleArtifact(option.key, manifest.artifacts[option.key]?.archive))?.key ?? fallbackPlatformKey;
 }
 
-function getInstallNoteForGroup(group: PlatformGroup, locale: Locale) {
+function getInstallNoteForPlatform(platformKey: PlatformKey, locale: Locale) {
   if (locale === "zh") {
-    if (group === "macos") return "首次启动时，如系统提示，请前往“系统设置”→“隐私与安全性”允许打开应用。";
-    if (group === "windows") return "下载的是安装版 .exe，运行后按向导完成安装即可。";
-    return "Linux 可按你的发行版选择 AppImage、.deb 或 .rpm 安装包。";
+    if (platformKey === "darwin-arm64" || platformKey === "darwin-x64") return "首次启动时，如系统提示，请前往“系统设置”→“隐私与安全性”允许打开应用。";
+    if (platformKey === "windows-x64" || platformKey === "windows-arm64") return "下载的是安装版 .exe，运行后按向导完成安装即可。";
+    if (platformKey === "linux-deb-x64" || platformKey === "linux-deb-arm64") return "适用于 Debian、Ubuntu、Kali 等 .deb 系发行版。";
+    if (platformKey === "linux-rpm-x64") return "适用于 Fedora、RHEL 等 .rpm 系发行版。";
+    return "通用 AppImage，下载后授予执行权限即可运行。";
   }
 
-  if (group === "macos") return "On first launch, allow the app in System Settings -> Privacy & Security if macOS asks.";
-  if (group === "windows") return "This download is the installer .exe. Run it and follow the setup steps.";
-  return "Choose AppImage, .deb, or .rpm based on your Linux distribution.";
+  if (platformKey === "darwin-arm64" || platformKey === "darwin-x64") return "On first launch, allow the app in System Settings -> Privacy & Security if macOS asks.";
+  if (platformKey === "windows-x64" || platformKey === "windows-arm64") return "This download is the installer .exe. Run it and follow the setup steps.";
+  if (platformKey === "linux-deb-x64" || platformKey === "linux-deb-arm64") return "Best for Debian, Ubuntu, Kali, and other .deb-based distributions.";
+  if (platformKey === "linux-rpm-x64") return "Best for Fedora, RHEL, and other .rpm-based distributions.";
+  return "Universal AppImage package. Make it executable after download to run it.";
 }
 
 function BrandIcon() {
@@ -713,7 +709,7 @@ export function MotiClawLanding({
     ? [`curl -L -o ${recommendedArtifact.filename} ${recommendedArtifact.url}`]
     : content.quickStart.commands;
   const quickStartNoteText = `${displayVersion} · ${content.quickStart.commandNote}`;
-  const installNoteText = getInstallNoteForGroup(recommendedPlatformGroup, locale);
+  const installNoteText = getInstallNoteForPlatform(recommendedPlatformKey, locale);
   /*
    * Restore with the multi-entry quick start tabs:
    *
@@ -840,7 +836,17 @@ export function MotiClawLanding({
     let active = true;
 
     detectPlatform().then((platform) => {
-      if (active) setDetectedPlatform(platform);
+      if (!active) return;
+
+      setDetectedPlatform(platform);
+
+      const detectedGroup = groupForDetectedOs(platform.os);
+      if (!detectedGroup || !isPublicPlatformGroup(detectedGroup)) return;
+
+      setPlatformGroupOpen((open) => {
+        if (open[detectedGroup]) return open;
+        return { ...open, [detectedGroup]: true };
+      });
     });
 
     return () => {
