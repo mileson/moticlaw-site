@@ -42,7 +42,7 @@ import { flushSync } from "react-dom";
 import { createPortal } from "react-dom";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { MouseEvent } from "react";
-import type { Locale } from "@/lib/locale";
+import { detectLocale, type Locale } from "@/lib/locale";
 import {
   isPublicPlatformGroup,
   type PlatformGroup,
@@ -196,6 +196,12 @@ const copy = {
     },
     footer: "Designed for MotiClaw local ops, onboarding flows, and public-facing clarity.",
     footerNote: "One scroll. One story. One control plane.",
+    signature: {
+      creditLead: "Built by",
+      creditTrail: "",
+      originLead: "Created in",
+      originPlace: "Beijing, China",
+    },
     controls: { language: "Language", theme: "Theme", light: "Light", dark: "Dark", switchTo: "Switch to" },
     copied: "Copied",
     download: {
@@ -328,6 +334,12 @@ const copy = {
     },
     footer: "MotiClaw.",
     footerNote: "",
+    signature: {
+      creditLead: "由",
+      creditTrail: "打造",
+      originLead: "创于",
+      originPlace: "中国·北京",
+    },
     controls: { language: "语言", theme: "主题", light: "浅色", dark: "深色", switchTo: "切换为" },
     copied: "已复制",
     download: {
@@ -812,7 +824,7 @@ export function MotiClawLanding({
 
   useEffect(() => {
     const storedLocale = window.localStorage.getItem(localeStorageKey);
-    const browserLocale = window.navigator.language.toLowerCase().startsWith("zh") ? "zh" : "en";
+    const browserLocale = detectLocale(window.navigator.languages ?? window.navigator.language);
     const nextLocale = storedLocale === "zh" || storedLocale === "en" ? storedLocale : browserLocale;
     const storedTheme = window.localStorage.getItem(themeStorageKey);
 
@@ -1569,18 +1581,36 @@ export function MotiClawLanding({
             ))}
           </div>
 
-          <div className="mt-8 flex justify-center text-sm text-[var(--muted)]">
-            <p>
-              Build by{" "}
-              <a
-                href="https://x.com/Mileson07"
-                target="_blank"
-                rel="noreferrer"
-                style={{ color: "var(--accent-strong)" }}
-                className="font-medium transition-opacity hover:opacity-80"
-              >
-                超级峰
-              </a>
+          <div className="mt-8 flex justify-center">
+            <p className="flex flex-wrap items-center justify-center gap-x-2 gap-y-2 text-sm text-[var(--muted)]">
+              <span className="inline-flex items-center gap-1.5">
+                <span>{content.signature.creditLead}</span>
+                <a
+                  href="https://x.com/Mileson07"
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ color: "var(--accent-strong)" }}
+                  className="font-medium transition-opacity hover:opacity-80"
+                >
+                  超级峰
+                </a>
+                {content.signature.creditTrail ? <span>{content.signature.creditTrail}</span> : null}
+              </span>
+              <span aria-hidden="true" className="text-[var(--line)]">
+                ·
+              </span>
+              <span className="inline-flex items-center gap-2 text-[0.78rem] text-[var(--muted)]">
+                <span>{content.signature.originLead}</span>
+                <span className="inline-flex items-center gap-1.5 text-[var(--foreground)]">
+                  <span
+                    aria-hidden="true"
+                    className="relative inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#de2910] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)]"
+                  >
+                    <span className="absolute left-[2px] top-[1px] text-[7px] leading-none text-[#ffde00]">★</span>
+                  </span>
+                  <span>{content.signature.originPlace}</span>
+                </span>
+              </span>
             </p>
           </div>
         </section>
