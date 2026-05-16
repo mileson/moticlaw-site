@@ -40,6 +40,13 @@ This project is managed by OpenPrd. Agents should be led by the harness rather t
 
 `openprd setup` and `openprd update` also enable Codex hooks in the user Codex config when run from the CLI.
 
+### Site Release Path
+
+- For this repository, production site releases should default to the Git-based path: commit the approved diff, push it to `origin/main`, and let the linked Vercel project auto-deploy from GitHub.
+- Do not default to manual `vercel deploy --prod` for routine website releases when the GitHub -> Vercel integration is healthy.
+- Manual Vercel production deploys are only for explicit user requests, urgent recovery, or when the Git-based path is temporarily unavailable and the bypass is intentional.
+- Before a Git-based production release, isolate the intended diff, run `pnpm build` plus the required OpenPrd gates, push to GitHub, then verify the resulting deployment on `www.moticlaw.com`.
+
 ### High-Risk Gate
 
 Before freeze, handoff, accepted spec apply/archive, commit, push, release, or publish, ensure `openprd standards . --verify`, `openprd run . --verify`, and `openprd doctor .` are healthy.

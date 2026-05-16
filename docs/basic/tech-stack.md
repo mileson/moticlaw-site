@@ -5,6 +5,7 @@
 - Node.js 运行 Next.js 16 应用，包管理器固定为 `pnpm@10`。
 - React 19 与 TypeScript 5 作为页面交互和类型系统基础。
 - 站点默认部署在 Vercel，本地开发通过 `pnpm dev`，生产预览通过 `pnpm build && pnpm start`。
+- 生产站点发布默认通过 GitHub `main` 分支触发 Vercel 自动部署；只有在 Git 集成不可用或人工指定旁路时，才考虑手动 Vercel 发布。
 
 ## 核心依赖
 
