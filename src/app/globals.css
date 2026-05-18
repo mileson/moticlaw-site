@@ -1617,8 +1617,8 @@ html.dark .download-modal {
 
 .promo-video-close {
   position: absolute;
-  top: -3rem;
-  right: 0;
+  top: -3.5rem;
+  right: -0.5rem;
   display: inline-grid;
   width: 2.75rem;
   height: 2.75rem;
@@ -1667,13 +1667,9 @@ html.dark .download-modal {
     font-size: 0.8rem;
   }
 
-  .hero-promo-button svg {
-    width: 24px;
-    height: 24px;
-  }
-
   .promo-video-close {
-    top: -2.6rem;
+    top: -3rem;
+    right: -0.25rem;
     width: 2.25rem;
     height: 2.25rem;
   }
