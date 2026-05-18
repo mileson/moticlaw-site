@@ -30,6 +30,7 @@ import {
   LinuxLogo,
   Moon,
   Package,
+  PlayCircle,
   ShieldCheck,
   Sliders,
   Sun,
@@ -112,6 +113,8 @@ const copy = {
     ],
     heroVideo: {
       title: "Control plane overview",
+      promoButton: "Watch promo video",
+      promoTitle: "MotiClaw Promo",
     },
     quickStart: {
       eyebrow: "Quick Start",
@@ -250,6 +253,8 @@ const copy = {
     ],
     heroVideo: {
       title: "控制面概览",
+      promoButton: "观看宣传片",
+      promoTitle: "MotiClaw 宣传片",
     },
     quickStart: {
       eyebrow: "快速开始",
@@ -688,6 +693,7 @@ export function MotiClawLanding({
    */
   const [copyHintVisible, setCopyHintVisible] = useState(false);
   const [downloadModalOpen, setDownloadModalOpen] = useState(false);
+  const [promoVideoOpen, setPromoVideoOpen] = useState(false);
   const [otherPlatformsOpen, setOtherPlatformsOpen] = useState(true);
   const [platformGroupOpen, setPlatformGroupOpen] = useState<Record<PlatformGroup, boolean>>({
     macos: true,
@@ -968,6 +974,23 @@ export function MotiClawLanding({
       window.removeEventListener("keydown", onKeyDown);
     };
   }, [downloadModalOpen]);
+
+  useEffect(() => {
+    if (!promoVideoOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setPromoVideoOpen(false);
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [promoVideoOpen]);
 
   /*
    * Restore with the package-manager tab:
@@ -1308,6 +1331,48 @@ export function MotiClawLanding({
             )
           : null}
 
+        {promoVideoOpen && typeof document !== "undefined"
+          ? createPortal(
+              <div
+                className="promo-video-backdrop"
+                role="presentation"
+                onClick={() => setPromoVideoOpen(false)}
+              >
+                <section
+                  className="promo-video-modal"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="promo-video-title"
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  <button
+                    type="button"
+                    className="promo-video-close"
+                    aria-label={content.download.close}
+                    title={content.download.close}
+                    onClick={() => setPromoVideoOpen(false)}
+                  >
+                    <X size={20} weight="bold" aria-hidden="true" />
+                  </button>
+
+                  <div className="promo-video-container">
+                    <video
+                      className="promo-video-player"
+                      autoPlay
+                      controls
+                      preload="metadata"
+                      aria-label={content.heroVideo.promoTitle}
+                    >
+                      <source src="https://moticlaw.oss-cn-hangzhou.aliyuncs.com/site/videos/hero-promo.mp4" type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                  </div>
+                </section>
+              </div>,
+              document.body,
+            )
+          : null}
+
         <section id="top" className="hero-section grid flex-1 gap-8 pb-10 pt-4 sm:gap-12 sm:pb-16 sm:pt-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-center lg:pb-24 lg:pt-16">
           <div className="hero-copy fade-up space-y-6 lg:pl-8 xl:pl-12" style={{ animationDelay: "60ms" }}>
             <div className="space-y-5">
@@ -1373,6 +1438,16 @@ export function MotiClawLanding({
                   <source src="/videos/hero-right.mp4" type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
+
+                <button
+                  type="button"
+                  className="hero-promo-button"
+                  onClick={() => setPromoVideoOpen(true)}
+                  aria-label={content.heroVideo.promoButton}
+                >
+                  <PlayCircle size={28} weight="fill" aria-hidden="true" />
+                  <span>{content.heroVideo.promoButton}</span>
+                </button>
               </div>
             </div>
           </div>
