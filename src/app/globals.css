@@ -1530,6 +1530,10 @@ html.dark .download-modal {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+  .hero-video-frame {
+    margin-right: -1rem;
+  }
+
   .contact-grid > :last-child {
     grid-column: auto;
     justify-self: stretch;
@@ -1618,7 +1622,7 @@ html.dark .download-modal {
 .promo-video-close {
   position: absolute;
   top: -3.5rem;
-  right: -0.5rem;
+  right: -2rem;
   display: inline-grid;
   width: 2.75rem;
   height: 2.75rem;
@@ -1669,7 +1673,7 @@ html.dark .download-modal {
 
   .promo-video-close {
     top: -3rem;
-    right: -0.25rem;
+    right: -1rem;
     width: 2.25rem;
     height: 2.25rem;
   }
