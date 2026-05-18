@@ -113,7 +113,7 @@ const copy = {
     ],
     heroVideo: {
       title: "Control plane overview",
-      promoButton: "Watch promo video",
+      promoButton: "Watch",
       promoTitle: "MotiClaw Promo",
     },
     quickStart: {
@@ -253,7 +253,7 @@ const copy = {
     ],
     heroVideo: {
       title: "控制面概览",
-      promoButton: "观看宣传片",
+      promoButton: "观看",
       promoTitle: "MotiClaw 宣传片",
     },
     quickStart: {
