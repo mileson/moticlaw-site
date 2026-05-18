@@ -1418,7 +1418,12 @@ export function MotiClawLanding({
           </div>
 
           <div className="fade-up relative" style={{ animationDelay: "180ms" }}>
-            <div className="hero-video-frame hero-video-motion ml-auto overflow-hidden rounded-[1.5rem]">
+            <button
+              type="button"
+              className="hero-video-frame hero-video-motion ml-auto overflow-hidden rounded-[1.5rem]"
+              onClick={() => setPromoVideoOpen(true)}
+              aria-label={content.heroVideo.promoButton}
+            >
               <div className="hero-video-stage">
                 <div
                   aria-hidden="true"
@@ -1439,17 +1444,12 @@ export function MotiClawLanding({
                   Your browser does not support the video tag.
                 </video>
 
-                <button
-                  type="button"
-                  className="hero-promo-button"
-                  onClick={() => setPromoVideoOpen(true)}
-                  aria-label={content.heroVideo.promoButton}
-                >
-                  <PlayCircle size={28} weight="fill" aria-hidden="true" />
+                <div className="hero-promo-overlay" aria-hidden="true">
+                  <PlayCircle size={48} weight="fill" />
                   <span>{content.heroVideo.promoButton}</span>
-                </button>
+                </div>
               </div>
-            </div>
+            </button>
           </div>
         </section>
 

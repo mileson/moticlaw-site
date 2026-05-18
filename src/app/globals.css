@@ -1536,47 +1536,40 @@ html.dark .download-modal {
   }
 }
 
-/* Hero promo video button */
-.hero-promo-button {
+/* Hero video clickable card */
+.hero-video-frame button {
+  cursor: pointer;
+}
+
+.hero-promo-overlay {
   position: absolute;
-  bottom: 1rem;
-  left: 50%;
-  transform: translateX(-50%);
-  display: inline-flex;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-  border: 0;
-  border-radius: 9999px;
-  padding: 0.6rem 1rem;
-  background: rgba(255, 255, 255, 0.92);
-  color: var(--accent-strong);
-  font-size: 0.8rem;
+  justify-content: center;
+  gap: 0.75rem;
+  background: rgba(0, 0, 0, 0);
+  color: #fff;
+  font-size: 0.9rem;
   font-weight: 600;
   letter-spacing: 0.02em;
-  cursor: pointer;
-  transition:
-    background-color 180ms ease,
-    color 180ms ease,
-    transform 180ms ease,
-    box-shadow 180ms ease;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  transition: background-color 180ms ease;
   z-index: 10;
+  pointer-events: none;
 }
 
-html.dark .hero-promo-button {
-  background: rgba(20, 22, 30, 0.9);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+.hero-video-frame:hover .hero-promo-overlay {
+  background: rgba(0, 0, 0, 0.2);
 }
 
-.hero-promo-button:hover {
-  background: #fff;
-  color: var(--accent);
-  transform: translateX(-50%) translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+.hero-promo-overlay svg {
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
+  transition: transform 180ms ease;
 }
 
-html.dark .hero-promo-button:hover {
-  background: rgba(30, 33, 45, 0.95);
+.hero-video-frame:hover .hero-promo-overlay svg {
+  transform: scale(1.1);
 }
 
 /* Promo video modal */
@@ -1665,10 +1658,13 @@ html.dark .hero-promo-button:hover {
 }
 
 @media (max-width: 639px) {
-  .hero-promo-button {
-    bottom: 0.75rem;
-    padding: 0.5rem 0.85rem;
-    font-size: 0.75rem;
+  .hero-promo-overlay svg {
+    width: 40px;
+    height: 40px;
+  }
+
+  .hero-promo-overlay span {
+    font-size: 0.8rem;
   }
 
   .hero-promo-button svg {
