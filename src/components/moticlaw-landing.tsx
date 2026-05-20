@@ -238,8 +238,8 @@ const copy = {
   zh: {
     nav: { start: "安装", features: "产品特色", capabilities: "能力", footer: "联系" },
     headerBadge: "面向本地部署、Agent 工区和运营团队",
-    heroTitle: "Agent 管理，\n一个平台就够。",
-    heroBody: "先进的多 Agent 管理平台，让你即刻拥有高效的 Agent 团队。",
+    heroTitle: "Agent 管理\n一个平台就够",
+    heroBody: "先进的多 Agent 管理平台，让你即刻拥有高效的 Agent 团队",
     heroTag: "支持 OpenClaw · Hermes Agent",
     heroPlatformLabel: "支持",
     primaryCta: "下载安装",
@@ -1384,16 +1384,6 @@ export function MotiClawLanding({
                 <div className="hero-platform-strip inline-flex items-center gap-2 rounded-full py-2">
                   <span className="hero-platform-strip-label text-[0.8rem] font-medium tracking-[0.08em]">{content.heroPlatformLabel}</span>
                   <a
-                    href="https://openclaw.ai/"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="hero-platform-pill"
-                    title="OpenClaw"
-                    aria-label="OpenClaw"
-                  >
-                    <img src="/brand/openclaw.svg" alt="" aria-hidden="true" className="hero-platform-icon" />
-                  </a>
-                  <a
                     href="https://hermes-agent.nousresearch.com/"
                     target="_blank"
                     rel="noreferrer"
@@ -1402,6 +1392,16 @@ export function MotiClawLanding({
                     aria-label="Hermes Agent"
                   >
                     <img src="/brand/hermes-agent.png" alt="" aria-hidden="true" className="hero-platform-icon hero-platform-icon-rounded" />
+                  </a>
+                  <a
+                    href="https://openclaw.ai/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hero-platform-pill"
+                    title="OpenClaw"
+                    aria-label="OpenClaw"
+                  >
+                    <img src="/brand/openclaw.svg" alt="" aria-hidden="true" className="hero-platform-icon" />
                   </a>
                 </div>
                 <button
