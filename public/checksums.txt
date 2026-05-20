@@ -1,11 +1,6 @@
-e48d3e2c453173db66c550d418df14aaf583ce1ada169e85f6174d0139d3a1bb  v0.1.8/macos/arm64/MotiClaw-v0.1.8-macos-arm64.dmg
-1f6267de4fa1391ba025bcf41233cacbf2dac16b4a94873e3f1bb6973238fe84  v0.1.8/macos/x64/MotiClaw-v0.1.8-macos-x64.dmg
-de0bef600bc04b05840ac5f63022219ddb40aeaa1a86a4082d8b63c4a78ae23b  v0.1.8/windows/arm64/MotiClaw-v0.1.8-windows-arm64-portable.exe
-16f3f78521b346bfc8cd201e2d06d45fafc35151f72bd39e9b0d875fcc9f9a27  v0.1.8/windows/arm64/MotiClaw-v0.1.8-windows-arm64-setup.exe
-099538dc54fa029f09da681aa5518462be2b666cea56f13ed03f2628ce551f9e  v0.1.8/windows/x64/MotiClaw-v0.1.8-windows-x64-portable.exe
-c7c4b07ae0fe3e2041b2ecaf91d22ee6aae93f823b804069aedf84c6f3499bef  v0.1.8/windows/x64/MotiClaw-v0.1.8-windows-x64-setup.exe
-2a77bbc9dba5c7c33dccd634f1c3d35798719fab1e50014a1bd4619342e9eb60  v0.1.8/linux/arm64/MotiClaw-v0.1.8-linux-arm64-appimage.AppImage
-87e27db872842226e29021a828fc571d0d146fde11108f78030b5951f6f46a7c  v0.1.8/linux/arm64/MotiClaw-v0.1.8-linux-arm64-deb.deb
-aa5d48c0891ca95969cd0404a82128c66cd536c69875f7a2addfb8bb86e72f4d  v0.1.8/linux/x64/MotiClaw-v0.1.8-linux-x64-appimage.AppImage
-257099c08ef3514dc83a84f1d2ae03181bf3c7abde8bd2a7c1a41664c38efb78  v0.1.8/linux/x64/MotiClaw-v0.1.8-linux-x64-deb.deb
-6efadb971429b268fb892a825bd5392dac415ef4bf55deb9f68aaf8e7da4ac77  v0.1.8/linux/x64/MotiClaw-v0.1.8-linux-x64-rpm.rpm
+e7a5a197ed059c0272ee91ceb23dc592e2b3b3b8788df40cb2771859123c7646  v0.1.11/macos/arm64/MotiClaw-v0.1.11-macos-arm64.dmg
+f10c95be4761445c3640a8289bf8e517e0163fd7217caf25aa0fdd311df75f0a  v0.1.11/macos/x64/MotiClaw-v0.1.11-macos-x64.dmg
+ae5c1fba3d41e308bc59cb4626ea76aa07ef922bcd7d1fe6b1cd5db608fad98e  v0.1.11/windows/arm64/MotiClaw-v0.1.11-windows-arm64-portable.exe
+f47b096dfb0e75bf53c6c32fed3e95b6076c401a693dfda98092054bdbc8aec1  v0.1.11/windows/arm64/MotiClaw-v0.1.11-windows-arm64-setup.exe
+9df16480710dd342d13904004f7d31c7044c8f4f6b136d077e9f5f60faa520d7  v0.1.11/windows/x64/MotiClaw-v0.1.11-windows-x64-portable.exe
+fd61a36f70770f6fe008c65ff0e8ede80d422b2eabf728c9c248d6aa756e2cbc  v0.1.11/windows/x64/MotiClaw-v0.1.11-windows-x64-setup.exe

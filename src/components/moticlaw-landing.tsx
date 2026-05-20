@@ -697,7 +697,7 @@ export function MotiClawLanding({
   const [otherPlatformsOpen, setOtherPlatformsOpen] = useState(true);
   const [platformGroupOpen, setPlatformGroupOpen] = useState<Record<PlatformGroup, boolean>>({
     macos: true,
-    windows: false,
+    windows: true,
     linux: false,
   });
   const [releaseManifest, setReleaseManifest] = useState<ReleaseManifest>(initialReleaseManifest);

@@ -9,6 +9,7 @@
 - 用户进入首页后点击“下载/Download”。
 - 页面打开下载弹窗，优先请求 `/api/releases/latest` 获取 OSS 最新发布信息。
 - 页面根据浏览器平台信息推荐当前设备最匹配的安装包，并只展示当前官网公开的 macOS、Windows 安装项。
+- 下载弹窗默认展开 macOS 与 Windows 分组，Windows 分组直接展示 x64 和 ARM64 两个安装版入口。
 
 ## 状态变化
 

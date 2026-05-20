@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
   "product": "MotiClaw",
-  "version": "0.1.8",
-  "tag": "v0.1.8",
-  "release_date": "2026-05-11",
-  "display_version": "v0.1.8 (2026.5.11)",
-  "release_name": "MotiClaw v0.1.8 (2026.5.11)",
-  "generated_at": "2026-05-10T17:45:14.450Z",
+  "version": "0.1.11",
+  "tag": "v0.1.11",
+  "release_date": "2026-05-19",
+  "display_version": "v0.1.11 (2026.5.19)",
+  "release_name": "MotiClaw v0.1.11 (2026.5.19)",
+  "generated_at": "2026-05-19T16:05:03.186Z",
   "release_base_url": "https://moticlaw.oss-cn-hangzhou.aliyuncs.com/desktop/releases",
-  "release_url": "https://moticlaw.oss-cn-hangzhou.aliyuncs.com/desktop/releases/v0.1.8/manifest.json",
+  "release_url": "https://moticlaw.oss-cn-hangzhou.aliyuncs.com/desktop/releases/v0.1.11/manifest.json",
   "latest_url": "https://moticlaw.oss-cn-hangzhou.aliyuncs.com/desktop/releases/latest.json",
-  "download_base_url": "https://moticlaw.oss-cn-hangzhou.aliyuncs.com/desktop/releases/v0.1.8/",
-  "checksums_url": "https://moticlaw.oss-cn-hangzhou.aliyuncs.com/desktop/releases/v0.1.8/checksums.sha256",
+  "download_base_url": "https://moticlaw.oss-cn-hangzhou.aliyuncs.com/desktop/releases/v0.1.11/",
+  "checksums_url": "https://moticlaw.oss-cn-hangzhou.aliyuncs.com/desktop/releases/v0.1.11/checksums.sha256",
   "latest_checksums_url": "https://moticlaw.oss-cn-hangzhou.aliyuncs.com/desktop/releases/checksums.txt",
   "layout": {
-    "root": "v0.1.8",
+    "root": "v0.1.11",
     "pattern": "MotiClaw-v{version}-{platform}-{arch}[-{variant}].{ext}",
     "platforms": [
       "macos",
@@ -33,21 +33,21 @@
       "arch": "arm64",
       "variant": "dmg",
       "display_name": "macOS Apple Silicon",
-      "filename": "MotiClaw-v0.1.8-macos-arm64.dmg",
-      "relative_path": "macos/arm64/MotiClaw-v0.1.8-macos-arm64.dmg",
-      "size_bytes": 236366386,
-      "sha256": "e48d3e2c453173db66c550d418df14aaf583ce1ada169e85f6174d0139d3a1bb",
+      "filename": "MotiClaw-v0.1.11-macos-arm64.dmg",
+      "relative_path": "macos/arm64/MotiClaw-v0.1.11-macos-arm64.dmg",
+      "size_bytes": 332879570,
+      "sha256": "e7a5a197ed059c0272ee91ceb23dc592e2b3b3b8788df40cb2771859123c7646",
       "recommended_for": [
         "darwin-arm64"
       ],
       "notarization": {
         "status": "Accepted",
-        "submission_id": "e71e0d8b-27e8-4956-98fa-a9a2b235794a",
+        "submission_id": "951ce6f5-b523-4bd0-ba19-2e1cef751a0b",
         "stapled": true,
         "gatekeeper": "accepted",
         "source": "Notarized Developer ID"
       },
-      "url": "https://moticlaw.oss-cn-hangzhou.aliyuncs.com/desktop/releases/v0.1.8/macos/arm64/MotiClaw-v0.1.8-macos-arm64.dmg"
+      "url": "https://moticlaw.oss-cn-hangzhou.aliyuncs.com/desktop/releases/v0.1.11/macos/arm64/MotiClaw-v0.1.11-macos-arm64.dmg"
     },
     {
       "id": "macos-x64-dmg",
@@ -55,21 +55,21 @@
       "arch": "x64",
       "variant": "dmg",
       "display_name": "macOS Intel",
-      "filename": "MotiClaw-v0.1.8-macos-x64.dmg",
-      "relative_path": "macos/x64/MotiClaw-v0.1.8-macos-x64.dmg",
-      "size_bytes": 243460622,
-      "sha256": "1f6267de4fa1391ba025bcf41233cacbf2dac16b4a94873e3f1bb6973238fe84",
+      "filename": "MotiClaw-v0.1.11-macos-x64.dmg",
+      "relative_path": "macos/x64/MotiClaw-v0.1.11-macos-x64.dmg",
+      "size_bytes": 339975535,
+      "sha256": "f10c95be4761445c3640a8289bf8e517e0163fd7217caf25aa0fdd311df75f0a",
       "recommended_for": [
         "darwin-x64"
       ],
       "notarization": {
         "status": "Accepted",
-        "submission_id": "1521cabb-f32b-45eb-afee-011e5bb78258",
+        "submission_id": "d677d192-8c92-4ad9-9506-3ce330db5cde",
         "stapled": true,
         "gatekeeper": "accepted",
         "source": "Notarized Developer ID"
       },
-      "url": "https://moticlaw.oss-cn-hangzhou.aliyuncs.com/desktop/releases/v0.1.8/macos/x64/MotiClaw-v0.1.8-macos-x64.dmg"
+      "url": "https://moticlaw.oss-cn-hangzhou.aliyuncs.com/desktop/releases/v0.1.11/macos/x64/MotiClaw-v0.1.11-macos-x64.dmg"
     },
     {
       "id": "windows-arm64-portable",
@@ -77,14 +77,14 @@
       "arch": "arm64",
       "variant": "portable",
       "display_name": "Windows ARM64 便携版",
-      "filename": "MotiClaw-v0.1.8-windows-arm64-portable.exe",
-      "relative_path": "windows/arm64/MotiClaw-v0.1.8-windows-arm64-portable.exe",
-      "size_bytes": 211962914,
-      "sha256": "de0bef600bc04b05840ac5f63022219ddb40aeaa1a86a4082d8b63c4a78ae23b",
+      "filename": "MotiClaw-v0.1.11-windows-arm64-portable.exe",
+      "relative_path": "windows/arm64/MotiClaw-v0.1.11-windows-arm64-portable.exe",
+      "size_bytes": 306871827,
+      "sha256": "ae5c1fba3d41e308bc59cb4626ea76aa07ef922bcd7d1fe6b1cd5db608fad98e",
       "recommended_for": [
         "win32-arm64"
       ],
-      "url": "https://moticlaw.oss-cn-hangzhou.aliyuncs.com/desktop/releases/v0.1.8/windows/arm64/MotiClaw-v0.1.8-windows-arm64-portable.exe"
+      "url": "https://moticlaw.oss-cn-hangzhou.aliyuncs.com/desktop/releases/v0.1.11/windows/arm64/MotiClaw-v0.1.11-windows-arm64-portable.exe"
     },
     {
       "id": "windows-arm64-setup",
@@ -92,14 +92,14 @@
       "arch": "arm64",
       "variant": "setup",
       "display_name": "Windows ARM64 安装版",
-      "filename": "MotiClaw-v0.1.8-windows-arm64-setup.exe",
-      "relative_path": "windows/arm64/MotiClaw-v0.1.8-windows-arm64-setup.exe",
-      "size_bytes": 212177320,
-      "sha256": "16f3f78521b346bfc8cd201e2d06d45fafc35151f72bd39e9b0d875fcc9f9a27",
+      "filename": "MotiClaw-v0.1.11-windows-arm64-setup.exe",
+      "relative_path": "windows/arm64/MotiClaw-v0.1.11-windows-arm64-setup.exe",
+      "size_bytes": 307086204,
+      "sha256": "f47b096dfb0e75bf53c6c32fed3e95b6076c401a693dfda98092054bdbc8aec1",
       "recommended_for": [
         "win32-arm64"
       ],
-      "url": "https://moticlaw.oss-cn-hangzhou.aliyuncs.com/desktop/releases/v0.1.8/windows/arm64/MotiClaw-v0.1.8-windows-arm64-setup.exe"
+      "url": "https://moticlaw.oss-cn-hangzhou.aliyuncs.com/desktop/releases/v0.1.11/windows/arm64/MotiClaw-v0.1.11-windows-arm64-setup.exe"
     },
     {
       "id": "windows-x64-portable",
@@ -107,14 +107,14 @@
       "arch": "x64",
       "variant": "portable",
       "display_name": "Windows x64 便携版",
-      "filename": "MotiClaw-v0.1.8-windows-x64-portable.exe",
-      "relative_path": "windows/x64/MotiClaw-v0.1.8-windows-x64-portable.exe",
-      "size_bytes": 210034275,
-      "sha256": "099538dc54fa029f09da681aa5518462be2b666cea56f13ed03f2628ce551f9e",
+      "filename": "MotiClaw-v0.1.11-windows-x64-portable.exe",
+      "relative_path": "windows/x64/MotiClaw-v0.1.11-windows-x64-portable.exe",
+      "size_bytes": 304944438,
+      "sha256": "9df16480710dd342d13904004f7d31c7044c8f4f6b136d077e9f5f60faa520d7",
       "recommended_for": [
         "win32-x64"
       ],
-      "url": "https://moticlaw.oss-cn-hangzhou.aliyuncs.com/desktop/releases/v0.1.8/windows/x64/MotiClaw-v0.1.8-windows-x64-portable.exe"
+      "url": "https://moticlaw.oss-cn-hangzhou.aliyuncs.com/desktop/releases/v0.1.11/windows/x64/MotiClaw-v0.1.11-windows-x64-portable.exe"
     },
     {
       "id": "windows-x64-setup",
@@ -122,89 +122,14 @@
       "arch": "x64",
       "variant": "setup",
       "display_name": "Windows x64 安装版",
-      "filename": "MotiClaw-v0.1.8-windows-x64-setup.exe",
-      "relative_path": "windows/x64/MotiClaw-v0.1.8-windows-x64-setup.exe",
-      "size_bytes": 210249051,
-      "sha256": "c7c4b07ae0fe3e2041b2ecaf91d22ee6aae93f823b804069aedf84c6f3499bef",
+      "filename": "MotiClaw-v0.1.11-windows-x64-setup.exe",
+      "relative_path": "windows/x64/MotiClaw-v0.1.11-windows-x64-setup.exe",
+      "size_bytes": 305159264,
+      "sha256": "fd61a36f70770f6fe008c65ff0e8ede80d422b2eabf728c9c248d6aa756e2cbc",
       "recommended_for": [
         "win32-x64"
       ],
-      "url": "https://moticlaw.oss-cn-hangzhou.aliyuncs.com/desktop/releases/v0.1.8/windows/x64/MotiClaw-v0.1.8-windows-x64-setup.exe"
-    },
-    {
-      "id": "linux-arm64-appimage",
-      "platform": "linux",
-      "arch": "arm64",
-      "variant": "appimage",
-      "display_name": "Linux ARM64 AppImage",
-      "filename": "MotiClaw-v0.1.8-linux-arm64-appimage.AppImage",
-      "relative_path": "linux/arm64/MotiClaw-v0.1.8-linux-arm64-appimage.AppImage",
-      "size_bytes": 244918153,
-      "sha256": "2a77bbc9dba5c7c33dccd634f1c3d35798719fab1e50014a1bd4619342e9eb60",
-      "recommended_for": [
-        "linux-arm64"
-      ],
-      "url": "https://moticlaw.oss-cn-hangzhou.aliyuncs.com/desktop/releases/v0.1.8/linux/arm64/MotiClaw-v0.1.8-linux-arm64-appimage.AppImage"
-    },
-    {
-      "id": "linux-arm64-deb",
-      "platform": "linux",
-      "arch": "arm64",
-      "variant": "deb",
-      "display_name": "Debian / Ubuntu ARM64",
-      "filename": "MotiClaw-v0.1.8-linux-arm64-deb.deb",
-      "relative_path": "linux/arm64/MotiClaw-v0.1.8-linux-arm64-deb.deb",
-      "size_bytes": 191745056,
-      "sha256": "87e27db872842226e29021a828fc571d0d146fde11108f78030b5951f6f46a7c",
-      "recommended_for": [
-        "linux-arm64"
-      ],
-      "url": "https://moticlaw.oss-cn-hangzhou.aliyuncs.com/desktop/releases/v0.1.8/linux/arm64/MotiClaw-v0.1.8-linux-arm64-deb.deb"
-    },
-    {
-      "id": "linux-x64-appimage",
-      "platform": "linux",
-      "arch": "x64",
-      "variant": "appimage",
-      "display_name": "Linux x64 AppImage",
-      "filename": "MotiClaw-v0.1.8-linux-x64-appimage.AppImage",
-      "relative_path": "linux/x64/MotiClaw-v0.1.8-linux-x64-appimage.AppImage",
-      "size_bytes": 244708681,
-      "sha256": "aa5d48c0891ca95969cd0404a82128c66cd536c69875f7a2addfb8bb86e72f4d",
-      "recommended_for": [
-        "linux-x64"
-      ],
-      "url": "https://moticlaw.oss-cn-hangzhou.aliyuncs.com/desktop/releases/v0.1.8/linux/x64/MotiClaw-v0.1.8-linux-x64-appimage.AppImage"
-    },
-    {
-      "id": "linux-x64-deb",
-      "platform": "linux",
-      "arch": "x64",
-      "variant": "deb",
-      "display_name": "Debian / Ubuntu x64",
-      "filename": "MotiClaw-v0.1.8-linux-x64-deb.deb",
-      "relative_path": "linux/x64/MotiClaw-v0.1.8-linux-x64-deb.deb",
-      "size_bytes": 196561474,
-      "sha256": "257099c08ef3514dc83a84f1d2ae03181bf3c7abde8bd2a7c1a41664c38efb78",
-      "recommended_for": [
-        "linux-x64"
-      ],
-      "url": "https://moticlaw.oss-cn-hangzhou.aliyuncs.com/desktop/releases/v0.1.8/linux/x64/MotiClaw-v0.1.8-linux-x64-deb.deb"
-    },
-    {
-      "id": "linux-x64-rpm",
-      "platform": "linux",
-      "arch": "x64",
-      "variant": "rpm",
-      "display_name": "Fedora / RHEL x64",
-      "filename": "MotiClaw-v0.1.8-linux-x64-rpm.rpm",
-      "relative_path": "linux/x64/MotiClaw-v0.1.8-linux-x64-rpm.rpm",
-      "size_bytes": 197302873,
-      "sha256": "6efadb971429b268fb892a825bd5392dac415ef4bf55deb9f68aaf8e7da4ac77",
-      "recommended_for": [
-        "linux-x64"
-      ],
-      "url": "https://moticlaw.oss-cn-hangzhou.aliyuncs.com/desktop/releases/v0.1.8/linux/x64/MotiClaw-v0.1.8-linux-x64-rpm.rpm"
+      "url": "https://moticlaw.oss-cn-hangzhou.aliyuncs.com/desktop/releases/v0.1.11/windows/x64/MotiClaw-v0.1.11-windows-x64-setup.exe"
     }
   ]
 }
