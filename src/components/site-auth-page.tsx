@@ -115,6 +115,8 @@ export function SiteAuthPage({
   const [rememberedDesktopReturnContext, setRememberedDesktopReturnContext] = useState<DesktopReturnContext | null>(null);
   const turnstileWidgetRef = useRef<TurnstileWidgetHandle | null>(null);
   const pendingTurnstileSubmitRef = useRef<TurnstileMode | null>(null);
+  const submitInFlightRef = useRef(false);
+  const lastAutoSubmittedVerificationRef = useRef("");
   const desktopHandoffAttemptGuardRef = useRef(createDesktopHandoffAttemptGuard());
 
   const effectiveDesktopReturnContext = useMemo(
@@ -367,7 +369,7 @@ export function SiteAuthPage({
   }
 
   async function submitCurrentMode() {
-    if (submitting || desktopReturnActive) {
+    if (submitting || desktopReturnActive || submitInFlightRef.current) {
       return;
     }
 
@@ -393,6 +395,7 @@ export function SiteAuthPage({
       return;
     }
 
+    submitInFlightRef.current = true;
     setSubmitting(true);
     try {
       if (mode === "login") {
@@ -529,9 +532,32 @@ export function SiteAuthPage({
         body: result.message || modeContent.successBody,
       });
     } finally {
+      submitInFlightRef.current = false;
       setSubmitting(false);
     }
   }
+
+  const autoSubmitCompletedVerification = useEffectEvent(() => {
+    if (!verificationActive || verificationCode.length !== 6 || submitDisabled || desktopReturnActive) {
+      return;
+    }
+
+    const submissionKey = `${mode}:${registerVerificationEmail || email.trim()}:${verificationCode}`;
+    if (lastAutoSubmittedVerificationRef.current === submissionKey) {
+      return;
+    }
+
+    lastAutoSubmittedVerificationRef.current = submissionKey;
+    void submitCurrentMode();
+  });
+
+  useEffect(() => {
+    if (!verificationActive || verificationCode.length !== 6) {
+      lastAutoSubmittedVerificationRef.current = "";
+      return;
+    }
+    autoSubmitCompletedVerification();
+  }, [desktopReturnActive, submitDisabled, verificationActive, verificationCode]);
 
   const flushPendingTurnstileSubmit = useEffectEvent(() => {
     logTurnstileEvent("token_received");
