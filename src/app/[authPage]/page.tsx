@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { SiteAuthPage } from "@/components/site-auth-page";
@@ -15,6 +16,20 @@ const supportedAuthPages = new Set<SiteAuthPageMode>(["login", "register", "forg
 const localWebsiteHostnames = new Set(["127.0.0.1", "localhost", "::1"]);
 const productionWebsiteDesktopClientRedirectUri = "moticlaw://auth/complete";
 const developmentWebsiteDesktopClientRedirectUri = "moticlaw-dev://auth/complete";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ authPage: string }>;
+}): Promise<Metadata> {
+  const { authPage } = await params;
+  const pageMode = normalizeAuthPageMode(authPage);
+  const canonical = pageMode && pageMode !== "register" ? `/${pageMode}` : "/login";
+  return {
+    alternates: { canonical },
+    robots: { index: false, follow: false, noarchive: true },
+  };
+}
 
 export default async function AuthPage({
   params,
