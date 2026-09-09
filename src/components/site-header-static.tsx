@@ -76,6 +76,7 @@ export function SiteHeaderStatic({
           <a
             href={getCanonicalPath(path, "zh")}
             aria-label="切换到中文版网站"
+            title="切换到中文版"
             className="inline-flex items-center gap-1 font-semibold text-[#9f4528] underline decoration-[#d7a08b] underline-offset-4 transition hover:text-[#77321f] dark:text-[#e9a88e] dark:hover:text-[#ffd1bf]"
           >
             切换到中文版
