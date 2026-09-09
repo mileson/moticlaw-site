@@ -25,6 +25,7 @@ import type { PlatformGroup, PlatformKey, ReleaseArchive, ReleaseManifest } from
 import { SiteFaqSection } from "@/components/site-faq-section";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeaderStatic } from "@/components/site-header-static";
+import { withLocaleQuery } from "@/components/seo-resource-manifest";
 
 const feishuGroupQrUrl = "/contact/feishu-group-qr-20260619.png";
 const storyAvatarUrls = {
@@ -295,10 +296,6 @@ function formatReleaseDate(value: string | undefined, locale: Locale) {
     month: "2-digit",
     day: "2-digit",
   }).format(date);
-}
-
-function withLocaleQuery(path: string, locale: Locale) {
-  return `${path}?lang=${locale}`;
 }
 
 function getDisplayVersion(manifest: ReleaseManifest) {
@@ -1434,8 +1431,12 @@ export function MotiClawLandingStatic({
     <main className="site-shell content-workspace-home relative overflow-x-hidden">
       <SiteHeaderStatic locale={locale} path="/" variant="landing" />
 
-      <div className="site-page-shell mx-auto flex min-h-screen w-full max-w-7xl flex-col px-4 pt-[4.75rem] pb-8 sm:px-8 sm:pt-16 lg:px-10">
-        <section id="top" className="hero-section hero-client-stage flex flex-1 items-center justify-center pb-10 pt-4 sm:pb-16 sm:pt-10 lg:pb-20 lg:pt-10">
+      <div className={`site-page-shell mx-auto flex min-h-screen w-full max-w-7xl flex-col px-4 pb-8 sm:px-8 lg:px-10 ${locale === "en" ? "pt-[7.5rem] sm:pt-[7rem]" : "pt-[4.75rem] sm:pt-16"}`}>
+        <section
+          id="top"
+          className="hero-section hero-client-stage flex flex-1 items-center justify-center pb-10 pt-4 sm:pb-16 sm:pt-10 lg:pb-20 lg:pt-10"
+          style={locale === "en" ? { minHeight: "min(780px, calc(100vh - 7rem))" } : undefined}
+        >
           <div className="hero-device-composition rise-in" style={{ animationDelay: "60ms" }}>
             <h1
               lang={locale === "zh" ? "zh-CN" : "en"}

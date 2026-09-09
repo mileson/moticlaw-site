@@ -1,5 +1,5 @@
-import { DownloadSimple, Globe, Moon, Sun, Translate } from "@phosphor-icons/react/dist/ssr";
-import { getActiveSeoNavigationId, getSeoNavigation } from "@/components/seo-resource-manifest";
+import { ArrowRight, DownloadSimple, Globe, Moon, Sun, Translate } from "@phosphor-icons/react/dist/ssr";
+import { getActiveSeoNavigationId, getCanonicalPath, getSeoNavigation, withLocaleQuery } from "@/components/seo-resource-manifest";
 import type { Locale } from "@/lib/locale";
 
 const headerCopy = {
@@ -41,21 +41,22 @@ export function SiteHeaderStatic({
   const copy = headerCopy[locale];
   const onLanding = variant === "landing";
   const onSeo = variant === "seo";
-  const anchor = (hash: string) => (onLanding ? `#${hash}` : `/?lang=${locale}#${hash}`);
+  const showChineseGuide = onLanding && locale === "en";
+  const anchor = (hash: string) => (onLanding ? `#${hash}` : `${getCanonicalPath("/", locale)}#${hash}`);
   const activeSeoNavigationId = onSeo ? getActiveSeoNavigationId(path) : null;
   const navigationItems = onSeo
     ? getSeoNavigation(locale).map((item) => ({ ...item, active: item.id === activeSeoNavigationId }))
     : [
         { id: "features", label: copy.features, href: anchor("product-features"), active: false },
         { id: "capabilities", label: copy.capabilities, href: anchor("capabilities"), active: false },
-        { id: "pricing", label: copy.pricing, href: `/pricing?lang=${locale}`, active: path === "/pricing" },
-        { id: "blog", label: copy.blog, href: `/blog?lang=${locale}`, active: path.startsWith("/blog") },
-        { id: "docs", label: copy.docs, href: `/docs?lang=${locale}`, active: path.startsWith("/docs") },
+        { id: "pricing", label: copy.pricing, href: withLocaleQuery("/pricing", locale), active: path === "/pricing" },
+        { id: "blog", label: copy.blog, href: withLocaleQuery("/blog", locale), active: path.startsWith("/blog") },
+        { id: "docs", label: copy.docs, href: withLocaleQuery("/docs", locale), active: path.startsWith("/docs") },
         { id: "contact", label: copy.contact, href: anchor("contact"), active: false },
       ];
   const downloadProps = onLanding
     ? { href: "#top", "data-open-download": "true" }
-    : { href: `/?lang=${locale}&download=1` };
+    : { href: withLocaleQuery("/", locale, { download: "1" }) };
 
   return (
     <div
@@ -63,8 +64,26 @@ export function SiteHeaderStatic({
       className={`site-header-shell site-header-shell-static fixed inset-x-0 top-0 z-40${onLanding ? "" : " is-pinned"}`}
       data-variant={variant}
     >
+      {showChineseGuide ? (
+        <aside
+          aria-label="中文版本提示"
+          className="flex min-h-11 items-center justify-center gap-3 border-b border-[#eadfce] bg-[#fbf6ed] px-4 py-2 text-sm text-[#51483f] dark:border-white/10 dark:bg-[#1b1713] dark:text-[#ddd4ca]"
+        >
+          <span className="inline-flex items-center gap-2">
+            <span aria-hidden="true" className="grid h-6 w-6 place-items-center rounded-full bg-[#b85c38] text-[0.68rem] font-semibold text-white shadow-[0_3px_10px_rgba(184,92,56,0.22)]">中</span>
+            <span>中文版本已准备好</span>
+          </span>
+          <a
+            href={getCanonicalPath(path, "zh")}
+            className="inline-flex items-center gap-1 font-semibold text-[#9f4528] underline decoration-[#d7a08b] underline-offset-4 transition hover:text-[#77321f] dark:text-[#e9a88e] dark:hover:text-[#ffd1bf]"
+          >
+            切换到中文
+            <ArrowRight size={14} weight="bold" aria-hidden="true" />
+          </a>
+        </aside>
+      ) : null}
       <header className="site-header mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-2 sm:px-8 lg:px-10">
-        <a href={onLanding ? "#top" : `/?lang=${locale}`} className="site-header-brand flex items-center gap-3">
+        <a href={onLanding ? "#top" : getCanonicalPath("/", locale)} className="site-header-brand flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg sm:h-[46px] sm:w-[46px]">
             <img src="/icon.svg?v=3" alt="" aria-hidden="true" fetchPriority="high" className="block h-full w-full object-contain" />
           </span>
@@ -116,7 +135,7 @@ export function SiteHeaderStatic({
           </button>
 
           <a
-            href={`/login?lang=${locale}`}
+            href={withLocaleQuery("/login", locale)}
             className="btn-base btn-secondary ml-2 hidden min-h-[2.75rem] items-center justify-center px-4 text-sm font-medium md:inline-flex"
           >
             {copy.login}
@@ -137,7 +156,7 @@ export function SiteHeaderStatic({
         <a
           role="menuitem"
           className={`lang-drawer-option ${locale === "en" ? "lang-drawer-option-active" : ""}`}
-          href={`${path}?lang=en`}
+          href={getCanonicalPath(path, "en")}
           data-locale-option="en"
         >
           <span className="flex items-center gap-2">
@@ -149,7 +168,7 @@ export function SiteHeaderStatic({
         <a
           role="menuitem"
           className={`lang-drawer-option ${locale === "zh" ? "lang-drawer-option-active" : ""}`}
-          href={`${path}?lang=zh`}
+          href={getCanonicalPath(path, "zh")}
           data-locale-option="zh"
         >
           <span className="flex items-center gap-2">

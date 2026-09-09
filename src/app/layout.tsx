@@ -7,21 +7,18 @@ import { SupportChat } from "@/components/support-chat";
 import { SiteAnalytics } from "@/components/site-analytics";
 
 const siteUrl = new URL("https://www.moticlaw.com");
-const siteTitle = "MotiClaw｜本地内容创作 AI 工作台";
+const siteTitle = "MotiClaw | Local AI Content Creation Workspace";
 const siteDescription =
-  "MotiClaw 是本地内容创作 AI 工作台，把灵感、素材、创作与发布收进一个本地工作空间，让 AI 完成大部分内容创作执行，数据默认留在你的设备上。";
+  "MotiClaw brings ideas, source material, creation, and publishing into one local AI workspace while your data stays on your device.";
 const siteKeywords = [
   "MotiClaw",
-  "本地内容创作",
-  "AI 内容创作",
-  "内容创作工作台",
-  "本地 AI 工作台",
-  "AI 写作",
-  "素材管理",
-  "内容发布",
-  "创作者工具",
-  "桌面版下载",
-  "下载安装",
+  "local AI workspace",
+  "AI content creation",
+  "content creation workspace",
+  "local-first AI",
+  "AI writing workspace",
+  "creator tools",
+  "desktop AI workspace",
 ];
 
 const displayFont = localFont({
@@ -76,14 +73,15 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
     languages: {
-      "zh-CN": "/?lang=zh",
-      en: "/?lang=en",
+      "zh-CN": "/zh",
+      en: "/",
       "x-default": "/",
     },
   },
   openGraph: {
     type: "website",
-    locale: "zh_CN",
+    locale: "en_US",
+    alternateLocale: ["zh_CN"],
     url: "/",
     siteName: "MotiClaw",
     title: siteTitle,
@@ -93,7 +91,7 @@ export const metadata: Metadata = {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "MotiClaw - 本地内容创作 AI 工作台",
+        alt: "MotiClaw local AI content creation workspace",
       },
     ],
   },

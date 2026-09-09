@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowClockwise, CheckCircle, Crown, Info, Receipt, Sparkle, WarningCircle } from "@phosphor-icons/react";
+import { ArrowClockwise, CheckCircle, Crown, Info, Lightning, Receipt, Sparkle, WarningCircle } from "@phosphor-icons/react";
 import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -364,6 +364,7 @@ export function SiteMembershipPage({
         { href: withLangAndView(locale, basePath, "plans"), icon: <Crown size={20} weight="regular" aria-hidden="true" />, label: content.choosePlan, active: activeView === "plans" },
         { href: withLangAndView(locale, basePath, "orders"), icon: <Receipt size={20} weight="regular" aria-hidden="true" />, label: content.recentOrders, active: activeView === "orders" },
         { href: withLang(locale, "/account/recharge"), icon: <Sparkle size={20} weight="regular" aria-hidden="true" />, label: locale === "zh" ? "积分充值" : "Points recharge" },
+        { href: withLang(locale, "/account/tokendance/recharge"), icon: <Lightning size={20} weight="regular" aria-hidden="true" />, label: locale === "zh" ? "TokenDance 额度" : "TokenDance credits" },
       ]}
       signedIn={Boolean(signedIn)}
       accountStatus={accountStatus}

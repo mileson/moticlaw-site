@@ -1,4 +1,4 @@
-import manifestData from "@/data/site-routes.json";
+import runtimeData from "@/components/seo-runtime-data.json";
 import type { SeoResourceKind } from "@/components/seo-resource-copy";
 import type { Locale } from "@/lib/locale";
 
@@ -17,6 +17,7 @@ export type SiteRouteManifest = {
   id: string;
   kind?: SeoResourceKind;
   path: string;
+  marketPaths?: Partial<Record<Locale, string>>;
   locales: Locale[];
   pageType: string;
   cluster: string;
@@ -24,10 +25,14 @@ export type SiteRouteManifest = {
   navTier: number;
   indexPolicy: "index" | "noindex";
   sitemap: boolean;
+  monitor: boolean;
+  ownerLane: "seo" | "blog" | "docs" | "manual";
   relatedIds?: string[];
   schemaTypes?: string[];
   layoutRecipe?: string;
+  evidencePolicy?: string;
   visualProfile?: string;
+  contentRegistry?: string;
   changeFrequency: "daily" | "weekly" | "monthly";
   priority: number;
   lastModified: string;
@@ -40,6 +45,17 @@ export type SeoVisual = {
   width: number;
   height: number;
   kind: "concept" | "screenshot";
+  provenance?: {
+    receipt: string;
+    dataMode: "synthetic";
+    scenarioId: string;
+    fixtureVersion: string;
+    fixtureSha256: string;
+    productGitDirty: false;
+    productGitSha: string;
+    appVersion: string;
+    capturedAt: string;
+  };
 };
 
 type NavigationItem = {
@@ -56,19 +72,39 @@ type VisualProfile = {
   height: number;
   alt: LocalizedText;
   caption: LocalizedText;
+  receipt?: string;
 };
 
 type SiteContentManifest = {
   version: number;
+  contractId: string;
+  updatedAt: string;
+  canonicalPolicy: {
+    defaultLocale: Locale;
+    defaultLocaleUrl: "path";
+    alternateLocaleUrl: "subpath" | "query";
+    queryParameter: string;
+    marketPrefix: string;
+  };
   navigation: NavigationItem[];
   visualProfiles: Record<string, VisualProfile>;
   routes: SiteRouteManifest[];
 };
 
-export const siteContentManifest = manifestData as SiteContentManifest;
+export const siteContentManifest = runtimeData.siteRoutes as SiteContentManifest;
 export const siteContentRoutes = siteContentManifest.routes;
 
+const productCaseReceipts = {
+  ...runtimeData.receipts,
+} as const;
+
 const routeById = new Map(siteContentRoutes.map((route) => [route.id, route]));
+const routeByPath = new Map(siteContentRoutes.map((route) => [route.path, route]));
+const routeByMarketPath = new Map(
+  siteContentRoutes.flatMap((route) =>
+    Object.values(route.marketPaths ?? {}).map((marketPath) => [marketPath, route] as const),
+  ),
+);
 const routeByKind = new Map(
   siteContentRoutes
     .filter((route): route is SiteRouteManifest & { kind: SeoResourceKind } => Boolean(route.kind))
@@ -77,6 +113,11 @@ const routeByKind = new Map(
 
 export function getSiteRouteById(id: string) {
   return routeById.get(id) ?? null;
+}
+
+export function getSiteRouteByPublicPath(path: string) {
+  const pathname = new URL(path, "https://www.moticlaw.com").pathname;
+  return resolveRouteMatch(pathname).route;
 }
 
 export function getSeoRouteByKind(kind: SeoResourceKind) {
@@ -120,7 +161,7 @@ export function getIndexableSiteRoutes() {
 }
 
 export function getMonitoredSiteRoutes() {
-  return getIndexableSiteRoutes();
+  return siteContentRoutes.filter((route) => route.indexPolicy === "index" && route.monitor);
 }
 
 export function getBreadcrumbRoutes(kind: SeoResourceKind) {
@@ -152,27 +193,55 @@ export function getManifestVisual(kind: SeoResourceKind, locale: Locale): SeoVis
     kind: profile.kind,
   } as const;
 
-  return base;
+  if (profile.kind !== "screenshot" || !profile.receipt) return base;
+
+  const productCaseReceipt = productCaseReceipts[profile.receipt as keyof typeof productCaseReceipts];
+  if (!productCaseReceipt) throw new Error(`SEO visual profile ${profileId} points to an unknown receipt: ${profile.receipt}`);
+
+  return {
+    ...base,
+    provenance: {
+      receipt: profile.receipt,
+      dataMode: "synthetic",
+      scenarioId: productCaseReceipt.scenarioId,
+      fixtureVersion: productCaseReceipt.fixture.version,
+      fixtureSha256: productCaseReceipt.fixture.sha256,
+      productGitDirty: false,
+      productGitSha: productCaseReceipt.product.gitSha,
+      appVersion: productCaseReceipt.product.appVersion,
+      capturedAt: productCaseReceipt.capture.capturedAt,
+    },
+  };
 }
 
 export function getCanonicalPath(path: string, locale: Locale) {
-  if (locale === "zh") return path;
   const url = new URL(path, "https://www.moticlaw.com");
-  url.searchParams.set("lang", locale);
-  return `${url.pathname}${url.search}`;
+  const match = resolveRouteMatch(url.pathname);
+  const policy = siteContentManifest.canonicalPolicy;
+  const defaultLocale = policy.defaultLocale;
+  const basePath = match.route?.path ?? match.normalizedPath;
+  const suffix = match.suffix;
+  const explicitMarketPath = match.route?.marketPaths?.[locale];
+  const localizedBase = explicitMarketPath ?? (
+    locale === defaultLocale
+      ? basePath
+      : prefixMarketPath(basePath, policy.marketPrefix)
+  );
+  url.pathname = `${localizedBase === "/" ? "" : localizedBase}${suffix}` || "/";
+  url.searchParams.delete(policy.queryParameter);
+  return `${url.pathname}${url.search}${url.hash}`;
 }
 
 export function getLanguageAlternates(path: string) {
   return {
-    "zh-CN": path,
+    "zh-CN": getCanonicalPath(path, "zh"),
     en: getCanonicalPath(path, "en"),
-    "x-default": path,
+    "x-default": getCanonicalPath(path, siteContentManifest.canonicalPolicy.defaultLocale),
   };
 }
 
 export function withLocaleQuery(path: string, locale: Locale, extraParams?: Record<string, string>) {
-  const url = new URL(path, "https://www.moticlaw.com");
-  url.searchParams.set("lang", locale);
+  const url = new URL(getCanonicalPath(path, locale), "https://www.moticlaw.com");
   if (extraParams) {
     for (const [key, value] of Object.entries(extraParams)) url.searchParams.set(key, value);
   }
@@ -181,4 +250,28 @@ export function withLocaleQuery(path: string, locale: Locale, extraParams?: Reco
 
 export function toAbsoluteSiteUrl(path: string) {
   return new URL(path, "https://www.moticlaw.com").toString();
+}
+
+function resolveRouteMatch(pathname: string) {
+  const prefix = siteContentManifest.canonicalPolicy.marketPrefix;
+  const normalizedPath = pathname === prefix
+    ? "/"
+    : pathname.startsWith(`${prefix}/`)
+      ? pathname.slice(prefix.length)
+      : pathname;
+  const exactRoute = routeByPath.get(normalizedPath) ?? routeByMarketPath.get(pathname);
+  if (exactRoute) return { route: exactRoute, normalizedPath, suffix: "" };
+
+  const parentRoute = [...siteContentRoutes]
+    .filter((route) => route.path !== "/" && normalizedPath.startsWith(`${route.path}/`))
+    .sort((left, right) => right.path.length - left.path.length)[0] ?? null;
+  return {
+    route: parentRoute,
+    normalizedPath,
+    suffix: parentRoute ? normalizedPath.slice(parentRoute.path.length) : "",
+  };
+}
+
+function prefixMarketPath(pathname: string, prefix: string) {
+  return pathname === "/" ? prefix : `${prefix}${pathname}`;
 }

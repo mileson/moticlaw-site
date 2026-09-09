@@ -1,18 +1,28 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import siteRouteManifest from "@/data/site-routes.json";
-
 type RequestLocale = "en" | "zh";
-
-const deterministicSeoPaths = new Set(
-  siteRouteManifest.routes
-    .filter((route) => Boolean(route.kind) || route.pageType === "hub")
-    .map((route) => route.path),
-);
+const chinesePrefix = "/zh";
+const legacyEnglishPrefix = "/en";
 
 export function proxy(request: NextRequest) {
+  if (request.nextUrl.pathname === legacyEnglishPrefix || request.nextUrl.pathname.startsWith(`${legacyEnglishPrefix}/`)) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = stripLocalePrefix(request.nextUrl.pathname, legacyEnglishPrefix);
+    redirectUrl.searchParams.delete("lang");
+    return NextResponse.redirect(redirectUrl, 308);
+  }
+
+  const locale = resolveRequestLocale(request);
   const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("x-moticlaw-locale", resolveRequestLocale(request));
+  requestHeaders.set("x-moticlaw-locale", locale);
+  requestHeaders.set("accept-language", locale === "zh" ? "zh-CN" : "en");
+
+  if (locale === "zh" && (request.nextUrl.pathname === chinesePrefix || request.nextUrl.pathname.startsWith(`${chinesePrefix}/`))) {
+    const rewriteUrl = request.nextUrl.clone();
+    rewriteUrl.pathname = stripLocalePrefix(request.nextUrl.pathname, chinesePrefix);
+    rewriteUrl.searchParams.set("lang", "zh");
+    return NextResponse.rewrite(rewriteUrl, { request: { headers: requestHeaders } });
+  }
 
   return NextResponse.next({
     request: {
@@ -26,16 +36,13 @@ export const config = {
 };
 
 function resolveRequestLocale(request: NextRequest): RequestLocale {
+  if (request.nextUrl.pathname === chinesePrefix || request.nextUrl.pathname.startsWith(`${chinesePrefix}/`)) return "zh";
   const explicitLocale = request.nextUrl.searchParams.get("lang");
   if (explicitLocale === "en" || explicitLocale === "zh") return explicitLocale;
-  if (deterministicSeoPaths.has(request.nextUrl.pathname)) return "zh";
+  return "en";
+}
 
-  const acceptedLanguages = request.headers.get("accept-language") ?? "";
-  for (const candidate of acceptedLanguages.split(",")) {
-    const normalized = candidate.trim().toLowerCase().split(";")[0];
-    if (normalized === "en" || normalized.startsWith("en-")) return "en";
-    if (normalized === "zh" || normalized.startsWith("zh-")) return "zh";
-  }
-
-  return "zh";
+function stripLocalePrefix(pathname: string, prefix: string) {
+  const stripped = pathname.slice(prefix.length);
+  return stripped || "/";
 }

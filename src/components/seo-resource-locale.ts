@@ -3,7 +3,7 @@ export type SeoSearchParams = Promise<Record<string, string | string[] | undefin
 export async function resolveSeoLocale(searchParams: SeoSearchParams) {
   const rawSearchParams = await searchParams;
   const requestedLanguage = firstString(rawSearchParams.lang);
-  return requestedLanguage === "en" ? "en" : "zh";
+  return requestedLanguage === "zh" ? "zh" : "en";
 }
 
 function firstString(value: string | string[] | undefined) {

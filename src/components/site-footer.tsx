@@ -1,54 +1,55 @@
 import type { Locale } from "@/lib/locale";
+import { withLocaleQuery } from "@/components/seo-resource-manifest";
 
 type FooterLink = { label: string; href: string; external?: boolean };
 type FooterColumn = { title: string; links: FooterLink[] };
 
 function footerColumns(locale: Locale): FooterColumn[] {
-  const q = `?lang=${locale}`;
+  const href = (path: string) => withLocaleQuery(path, locale);
   if (locale === "zh") {
     return [
       {
         title: "产品",
         links: [
-          { label: "下载安装", href: `/download${q}` },
-          { label: "产品能力", href: `/capabilities${q}` },
-          { label: "互动产品预览", href: `/ai-partner-console${q}` },
-          { label: "本地部署", href: `/local-deployment${q}` },
-          { label: "Agent 管理工作台", href: `/agent-management-workbench${q}` },
-          { label: "套餐价格", href: `/pricing${q}` },
+          { label: "下载安装", href: href("/download") },
+          { label: "产品能力", href: href("/capabilities") },
+          { label: "互动产品预览", href: href("/ai-partner-console") },
+          { label: "本地部署", href: href("/local-deployment") },
+          { label: "Agent 管理工作台", href: href("/agent-management-workbench") },
+          { label: "套餐价格", href: href("/pricing") },
         ],
       },
       {
         title: "解决方案",
         links: [
-          { label: "全部解决方案", href: `/solutions${q}` },
-          { label: "FDE 落地交付", href: `/fde-ai-delivery${q}` },
-          { label: "AI 独立开发者", href: `/ai-workbench-for-indie-developers${q}` },
-          { label: "OPC 内容运营", href: `/opc-content-ops-system${q}` },
-          { label: "老板与超级个体", href: `/ai-partner-for-founders${q}` },
+          { label: "全部解决方案", href: href("/solutions") },
+          { label: "FDE 落地交付", href: href("/fde-ai-delivery") },
+          { label: "AI 独立开发者", href: href("/ai-workbench-for-indie-developers") },
+          { label: "OPC 内容运营", href: href("/opc-content-ops-system") },
+          { label: "老板与超级个体", href: href("/ai-partner-for-founders") },
         ],
       },
       {
         title: "工作流",
         links: [
-          { label: "全部工作流", href: `/workflows${q}` },
-          { label: "FDE 本地交付路径", href: `/fde-local-ai-delivery${q}` },
-          { label: "AI 内容日历", href: `/opc-ai-content-calendar-workflow${q}` },
-          { label: "AI 决策工作流", href: `/founder-ai-decision-workflow${q}` },
-          { label: "第一条 AI 伙伴工作流", href: `/founder-ai-employee-first-workflow${q}` },
+          { label: "全部工作流", href: href("/workflows") },
+          { label: "FDE 本地交付路径", href: href("/fde-local-ai-delivery") },
+          { label: "AI 内容日历", href: href("/opc-ai-content-calendar-workflow") },
+          { label: "AI 决策工作流", href: href("/founder-ai-decision-workflow") },
+          { label: "第一条 AI 伙伴工作流", href: href("/founder-ai-employee-first-workflow") },
         ],
       },
       {
         title: "资源",
         links: [
-          { label: "全部资源", href: `/resources${q}` },
-          { label: "博客", href: `/blog${q}` },
-          { label: "产品文档", href: `/docs${q}` },
-          { label: "快速开始", href: `/docs/quickstart${q}` },
-          { label: "关于 MotiClaw · About", href: `/about${q}` },
-          { label: "联系我们 · Contact", href: `/contact${q}` },
-          { label: "隐私政策", href: `/privacy${q}` },
-          { label: "服务条款", href: `/terms-of-service${q}` },
+          { label: "全部资源", href: href("/resources") },
+          { label: "博客", href: href("/blog") },
+          { label: "产品文档", href: href("/docs") },
+          { label: "快速开始", href: href("/docs/quickstart") },
+          { label: "关于 MotiClaw · About", href: href("/about") },
+          { label: "联系我们 · Contact", href: href("/contact") },
+          { label: "隐私政策", href: href("/privacy") },
+          { label: "服务条款", href: href("/terms-of-service") },
         ],
       },
     ];
@@ -58,45 +59,45 @@ function footerColumns(locale: Locale): FooterColumn[] {
     {
       title: "Product",
       links: [
-        { label: "Download", href: `/download${q}` },
-        { label: "Capabilities", href: `/capabilities${q}` },
-        { label: "Interactive product preview", href: `/ai-partner-console${q}` },
-        { label: "Local deployment", href: `/local-deployment${q}` },
-        { label: "Agent workbench", href: `/agent-management-workbench${q}` },
-        { label: "Pricing", href: `/pricing${q}` },
+        { label: "Download", href: href("/download") },
+        { label: "Capabilities", href: href("/capabilities") },
+        { label: "Interactive product preview", href: href("/ai-partner-console") },
+        { label: "Local deployment", href: href("/local-deployment") },
+        { label: "Agent workbench", href: href("/agent-management-workbench") },
+        { label: "Pricing", href: href("/pricing") },
       ],
     },
     {
       title: "Solutions",
       links: [
-        { label: "All solutions", href: `/solutions${q}` },
-        { label: "FDE delivery", href: `/fde-ai-delivery${q}` },
-        { label: "Indie AI developers", href: `/ai-workbench-for-indie-developers${q}` },
-        { label: "OPC content operations", href: `/opc-content-ops-system${q}` },
-        { label: "Founders & solo operators", href: `/ai-partner-for-founders${q}` },
+        { label: "All solutions", href: href("/solutions") },
+        { label: "FDE delivery", href: href("/fde-ai-delivery") },
+        { label: "Indie AI developers", href: href("/ai-workbench-for-indie-developers") },
+        { label: "OPC content operations", href: href("/opc-content-ops-system") },
+        { label: "Founders & solo operators", href: href("/ai-partner-for-founders") },
       ],
     },
     {
       title: "Workflows",
       links: [
-        { label: "All workflows", href: `/workflows${q}` },
-        { label: "FDE local delivery path", href: `/fde-local-ai-delivery${q}` },
-        { label: "AI content calendar", href: `/opc-ai-content-calendar-workflow${q}` },
-        { label: "AI decision workflow", href: `/founder-ai-decision-workflow${q}` },
-        { label: "First AI partner workflow", href: `/founder-ai-employee-first-workflow${q}` },
+        { label: "All workflows", href: href("/workflows") },
+        { label: "FDE local delivery path", href: href("/fde-local-ai-delivery") },
+        { label: "AI content calendar", href: href("/opc-ai-content-calendar-workflow") },
+        { label: "AI decision workflow", href: href("/founder-ai-decision-workflow") },
+        { label: "First AI partner workflow", href: href("/founder-ai-employee-first-workflow") },
       ],
     },
     {
       title: "Resources",
       links: [
-        { label: "All resources", href: `/resources${q}` },
-        { label: "Blog", href: `/blog${q}` },
-        { label: "Documentation", href: `/docs${q}` },
-        { label: "Quickstart", href: `/docs/quickstart${q}` },
-        { label: "About MotiClaw", href: `/about${q}` },
-        { label: "Contact", href: `/contact${q}` },
-        { label: "Privacy", href: `/privacy${q}` },
-        { label: "Terms of service", href: `/terms-of-service${q}` },
+        { label: "All resources", href: href("/resources") },
+        { label: "Blog", href: href("/blog") },
+        { label: "Documentation", href: href("/docs") },
+        { label: "Quickstart", href: href("/docs/quickstart") },
+        { label: "About MotiClaw", href: href("/about") },
+        { label: "Contact", href: href("/contact") },
+        { label: "Privacy", href: href("/privacy") },
+        { label: "Terms of service", href: href("/terms-of-service") },
       ],
     },
   ];
@@ -115,7 +116,7 @@ export function SiteFooter({ locale }: { locale: Locale }) {
       <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-8 lg:px-10">
         <div className="grid gap-10 md:grid-cols-[minmax(0,1.2fr)_repeat(4,minmax(0,1fr))]">
           <div className="space-y-4">
-            <a href={`/?lang=${locale}`} className="flex items-center gap-3">
+            <a href={withLocaleQuery("/", locale)} className="flex items-center gap-3">
               <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg">
                 <img src="/icon.svg?v=3" alt="" aria-hidden="true" loading="lazy" className="block h-full w-full object-contain" />
               </span>

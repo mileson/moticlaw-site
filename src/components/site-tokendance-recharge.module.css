@@ -1,0 +1,370 @@
+
+.offerBadge {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  border: 1px solid #d43f12;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #f25522 0%, #e93416 100%);
+  color: #fff;
+  box-shadow: 0 5px 14px rgba(221, 61, 20, 0.22);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  padding: 0.35rem 0.72rem;
+}
+
+.rechargeGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(18rem, 0.85fr);
+  gap: 24px;
+  align-items: stretch;
+}
+
+.rechargeForm,
+.ratePanel {
+  border: 1px solid #e6e8ec;
+  border-radius: 22px;
+  background: #fff;
+  padding: 24px;
+}
+
+.rechargeForm {
+  display: grid;
+  gap: 20px;
+}
+
+.sectionCopy {
+  display: grid;
+  gap: 7px;
+}
+
+.sectionCopy h3,
+.sectionCopy p {
+  margin: 0;
+}
+
+.sectionCopy h3 {
+  color: #162033;
+  font-size: 1.22rem;
+  letter-spacing: -0.025em;
+}
+
+.sectionCopy p {
+  color: #6f7b90;
+  line-height: 1.65;
+}
+
+.amountField {
+  display: grid;
+  gap: 10px;
+}
+
+.amountField label {
+  color: #344054;
+  font-size: 0.9rem;
+  font-weight: 760;
+}
+
+.amountControl {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid #d8dde6;
+  border-radius: 16px;
+  background: #fff;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.amountControl:focus-within {
+  border-color: #162033;
+  box-shadow: 0 0 0 3px rgba(22, 32, 51, 0.08);
+}
+
+.amountControl input {
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #162033;
+  font: inherit;
+  font-size: 1.3rem;
+  font-weight: 760;
+  padding: 15px 17px;
+}
+
+.amountControl span {
+  color: #667085;
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 0 17px;
+}
+
+.amountHint {
+  margin: 0;
+  color: #7a8496;
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.primaryButton {
+  min-height: 48px;
+  border: 1px solid #162033;
+  border-radius: 15px;
+  background: #162033;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 780;
+  padding: 0 18px;
+  transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.primaryButton:hover:not(:disabled) {
+  border-color: #2c374d;
+  background: #2c374d;
+  transform: translateY(-1px);
+}
+
+.primaryButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.56;
+}
+
+.ratePanel {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 26px;
+  background: #fafafa;
+}
+
+.rateValue {
+  display: grid;
+  gap: 8px;
+}
+
+.rateValue span {
+  color: #7a8496;
+  font-size: 0.82rem;
+  font-weight: 720;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.rateValue strong {
+  color: #162033;
+  font-size: clamp(2rem, 4vw, 3rem);
+  letter-spacing: -0.045em;
+  line-height: 1;
+}
+
+.rateValue p {
+  margin: 0;
+  color: #6f7b90;
+  line-height: 1.6;
+}
+
+.offerMeta {
+  display: grid;
+  gap: 10px;
+  color: #667085;
+  font-size: 0.86rem;
+}
+
+.quoteSummary,
+.paymentSummary {
+  display: grid;
+  gap: 14px;
+}
+
+.quoteRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 18px;
+  border-bottom: 1px solid #e8e9ed;
+  padding: 0 0 14px;
+}
+
+.quoteRow span {
+  color: #667085;
+}
+
+.quoteRow strong {
+  color: #162033;
+  font-size: 1.15rem;
+  text-align: right;
+}
+
+.quoteOffer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid #f3c7b9;
+  border-radius: 15px;
+  background: #fff5f1;
+  color: #9a3412;
+  padding: 13px 14px;
+}
+
+.quoteActions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 6px;
+}
+
+.paymentQr {
+  display: grid;
+  place-items: center;
+  gap: 13px;
+  border: 1px solid #e6e8ec;
+  border-radius: 20px;
+  background: #fff;
+  padding: 22px;
+  text-align: center;
+}
+
+.paymentQr svg {
+  width: min(64vw, 220px);
+  height: auto;
+}
+
+.paymentQr strong {
+  color: #162033;
+}
+
+.paymentLink {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #162033;
+  border-radius: 14px;
+  background: #162033;
+  color: #fff;
+  font-weight: 760;
+  padding: 0 17px;
+  text-decoration: none;
+}
+
+.paymentStatus {
+  border: 1px solid #e5e7eb;
+  border-radius: 15px;
+  background: #f8f9fb;
+  color: #4b5565;
+  padding: 14px 16px;
+}
+
+.paymentStatus strong,
+.paymentStatus p {
+  margin: 0;
+}
+
+.paymentStatus p {
+  margin-top: 5px;
+  line-height: 1.55;
+}
+
+.ordersSurface {
+  overflow: hidden;
+  border: 1px solid #ececec;
+  border-radius: 22px;
+  background: #fff;
+}
+
+.ordersTableWrap {
+  overflow-x: auto;
+}
+
+.ordersTable {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+}
+
+.ordersTable th,
+.ordersTable td {
+  border-bottom: 1px solid #ececec;
+  padding: 15px 18px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.ordersTable th {
+  color: #7a8496;
+  font-size: 0.78rem;
+  font-weight: 760;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ordersTable td {
+  color: #344054;
+  font-size: 0.92rem;
+}
+
+.ordersTable tr:last-child td {
+  border-bottom: 0;
+}
+
+.orderNo {
+  max-width: 16rem;
+  overflow: hidden;
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.status {
+  display: inline-flex;
+  border-radius: 999px;
+  background: #f1f3f6;
+  color: #4b5565;
+  font-size: 0.78rem;
+  font-weight: 760;
+  padding: 0.34rem 0.7rem;
+}
+
+.statusPaid {
+  background: #eaf7ef;
+  color: #197044;
+}
+
+.statusPending {
+  background: #fff7e8;
+  color: #a15c00;
+}
+
+@media (max-width: 900px) {
+  .rechargeGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .rechargeForm,
+  .ratePanel {
+    border-radius: 18px;
+    padding: 19px;
+  }
+
+  .quoteRow {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .quoteRow strong {
+    text-align: left;
+  }
+
+  .quoteActions,
+  .primaryButton {
+    width: 100%;
+  }
+}

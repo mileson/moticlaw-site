@@ -4,6 +4,7 @@ import {
   ArrowClockwise,
   CheckCircle,
   Crown,
+  Lightning,
   ListChecks,
   Receipt,
   Sparkle,
@@ -283,6 +284,11 @@ export function SitePointsPage({
           icon: <Sparkle size={20} weight="regular" aria-hidden="true" />,
           label: content.title,
           active: true,
+        },
+        {
+          href: withLang(locale, "/account/tokendance/recharge"),
+          icon: <Lightning size={20} weight="regular" aria-hidden="true" />,
+          label: locale === "zh" ? "TokenDance 额度" : "TokenDance credits",
         },
       ]}
       signedIn={Boolean(signedIn)}

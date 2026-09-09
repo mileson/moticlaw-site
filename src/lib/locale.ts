@@ -1,6 +1,6 @@
 export type Locale = "en" | "zh";
 
-export const defaultLocale: Locale = "zh";
+export const defaultLocale: Locale = "en";
 
 export function detectLocale(languagePreference: string | readonly string[] | null | undefined): Locale {
   const languageEntries = Array.isArray(languagePreference) ? languagePreference : [languagePreference];
