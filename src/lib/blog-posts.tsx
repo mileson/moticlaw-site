@@ -905,7 +905,7 @@ export const blogPosts: BlogPost[] = [
             一条好的个人工作流，应该让 AI 伙伴负责收集、整理、比对和起草，让你负责目标、边界与最终确认。工作数据默认留在本机；仅你主动接入的渠道与模型调用按任务所需出网。边界越清楚，你越敢把重复工作长期交出去。
           </p>
           <p className={p}>
-            如果你已经有一件每周重复的事，可以直接照着《<Link className={strong} href="/docs/first-repeatable-workflow?lang=zh">用一条重复任务，跑通第一个 AI 伙伴工作流</Link>》里的工作流卡和三轮验收法跑一遍。先得到一条会重复成功的链路，再谈更大的自动化。
+            如果你已经有一件每周重复的事，可以直接照着《<Link className={strong} href="/zh/docs/first-repeatable-workflow">用一条重复任务，跑通第一个 AI 伙伴工作流</Link>》里的工作流卡和三轮验收法跑一遍。先得到一条会重复成功的链路，再谈更大的自动化。
           </p>
         </>
       ),
@@ -961,7 +961,7 @@ export const blogPosts: BlogPost[] = [
             A useful personal workflow lets AI gather, organize, compare, and draft while you keep the goal, boundary, and final confirmation. Work data stays on your device by default; only channels you connect and model calls go online as the task requires. Clearer boundaries make repeated delegation easier to trust.
           </p>
           <p className={p}>
-            If you already have one weekly recurring task, use the workflow card and three-round check in <Link className={strong} href="/docs/first-repeatable-workflow?lang=en">Run Your First AI Partner Workflow with One Recurring Task</Link>. Build one loop that succeeds repeatedly before chasing a larger automation.
+            If you already have one weekly recurring task, use the workflow card and three-round check in <Link className={strong} href="/docs/first-repeatable-workflow">Run Your First AI Partner Workflow with One Recurring Task</Link>. Build one loop that succeeds repeatedly before chasing a larger automation.
           </p>
         </>
       ),
