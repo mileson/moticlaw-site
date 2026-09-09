@@ -19,6 +19,7 @@ export function proxy(request: NextRequest) {
 
   if (locale === "zh" && (request.nextUrl.pathname === chinesePrefix || request.nextUrl.pathname.startsWith(`${chinesePrefix}/`))) {
     const rewriteUrl = request.nextUrl.clone();
+    rewriteUrl.protocol = "http:";
     rewriteUrl.pathname = stripLocalePrefix(request.nextUrl.pathname, chinesePrefix);
     rewriteUrl.searchParams.set("lang", "zh");
     return NextResponse.rewrite(rewriteUrl, { request: { headers: requestHeaders } });
