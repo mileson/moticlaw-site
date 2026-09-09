@@ -19,15 +19,15 @@ export async function generateMetadata({
   const description = locale === "zh"
     ? "查看 MotiClaw Plus 和 Pro 月付、年付套餐：更高的托管模型限额、更多 AI 伙伴，支付后立即生效。"
     : "Compare MotiClaw Plus and Pro monthly and annual plans: higher hosted-model limits and more AI partners, active right after payment.";
-  const canonical = locale === "en" ? "/account/membership?lang=en" : "/account/membership";
+  const canonical = locale === "zh" ? "/zh/account/membership" : "/account/membership";
   return {
     title,
     description,
     alternates: {
       canonical,
       languages: {
-        "zh-CN": "/account/membership",
-        en: "/account/membership?lang=en",
+        "zh-CN": "/zh/account/membership",
+        en: "/account/membership",
         "x-default": "/account/membership",
       },
     },

@@ -21,15 +21,15 @@ export async function generateMetadata({
     locale === "zh"
       ? "查看当前积分余额，选择积分包并使用微信扫码完成充值。"
       : "Review your points balance, choose a points package, and complete recharge with WeChat.";
-  const canonical = locale === "en" ? "/account/recharge?lang=en" : "/account/recharge";
+  const canonical = locale === "zh" ? "/zh/account/recharge" : "/account/recharge";
   return {
     title,
     description,
     alternates: {
       canonical,
       languages: {
-        "zh-CN": "/account/recharge",
-        en: "/account/recharge?lang=en",
+        "zh-CN": "/zh/account/recharge",
+        en: "/account/recharge",
         "x-default": "/account/recharge",
       },
     },
@@ -83,5 +83,5 @@ function withLoginReturnUrl(locale: string, returnToPath: string) {
 }
 
 function withLang(locale: string, path: string) {
-  return `${path}?lang=${locale}`;
+  return locale === "zh" ? `/zh${path}` : path;
 }
